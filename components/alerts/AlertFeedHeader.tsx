@@ -41,8 +41,8 @@ export function AlertFeedHeader({
       </div>
 
       {/* Filter pills + search */}
-      <div className="flex items-center gap-3">
-        <div className="flex gap-1">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap gap-1">
           {FILTERS.map((f) => (
             <button
               key={f.value}
@@ -59,7 +59,7 @@ export function AlertFeedHeader({
           ))}
         </div>
 
-        <div className="relative ml-auto w-64">
+        <div className="relative w-full sm:ml-auto sm:w-64">
           <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search alerts..."

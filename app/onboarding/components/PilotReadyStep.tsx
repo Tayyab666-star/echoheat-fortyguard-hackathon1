@@ -77,7 +77,7 @@ export function PilotReadyStep() {
         transition={{ delay: 0.4, duration: 0.4 }}
         className="flex flex-col gap-2"
       >
-        <h2 className="text-3xl font-black text-foreground">
+        <h2 className="text-2xl font-black text-foreground sm:text-3xl">
           You&apos;re Live on EchoHeat
         </h2>
         <p className="text-sm text-muted-foreground">

@@ -21,7 +21,7 @@ export function ThermalLagIndicator({
   const fillPct = Math.min(100, (totalMinutes / maxMinutes) * 100)
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="flex items-center gap-2">
         <span className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-primary">
           <Timer className="size-3.5" />

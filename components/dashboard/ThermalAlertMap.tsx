@@ -15,7 +15,7 @@ export function ThermalAlertMap() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="relative col-span-full flex min-h-[320px] flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md lg:col-span-6"
+      className="relative col-span-full flex min-h-[250px] flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:min-h-[320px] sm:p-6 backdrop-blur-md lg:col-span-6"
     >
       {/* Map placeholder */}
       <div className="absolute inset-0 bg-surface-2/60">

@@ -102,7 +102,7 @@ export function AssetExposureHeatmap() {
   }
 
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="relative rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold mb-4">Asset Exposure Heatmap — WBGT by Hour</h3>
 
       <div ref={ref} className="overflow-x-auto">

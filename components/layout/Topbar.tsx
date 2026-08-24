@@ -50,12 +50,15 @@ export function Topbar({
   return (
     <header
       data-slot="topbar"
-      className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-4 border-b border-white/10 bg-zinc-950/80 px-6 backdrop-blur-md"
+      className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-zinc-950/80 px-4 backdrop-blur-md sm:gap-4 sm:px-6"
     >
-      {/* ── Left: Title + Breadcrumbs ── */}
-      <div className="flex items-center gap-2.5 min-w-0">
+      {/* Spacer for mobile hamburger */}
+      <div className="w-8 md:hidden" />
+
+      {/* Left: Title + Breadcrumbs */}
+      <div className="flex min-w-0 items-center gap-2.5">
         {breadcrumbs.length > 0 && (
-          <nav className="flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Breadcrumb">
+          <nav className="hidden items-center gap-1.5 text-sm text-muted-foreground sm:flex" aria-label="Breadcrumb">
             {breadcrumbs.map((crumb) => (
               <React.Fragment key={crumb}>
                 <span className="truncate">{crumb}</span>
@@ -67,8 +70,8 @@ export function Topbar({
         <h1 className="truncate text-sm font-semibold">{pageTitle}</h1>
       </div>
 
-      {/* ── Center: Live Status Pill ── */}
-      <div className="mx-auto flex items-center gap-2 rounded-full border border-white/10 bg-surface-2 px-3 py-1">
+      {/* Center: Live Status Pill — hidden on very small screens */}
+      <div className="mx-auto hidden items-center gap-2 rounded-full border border-white/10 bg-surface-2 px-3 py-1 sm:flex">
         <span className="relative flex size-2 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
           <span className="relative inline-flex size-2 rounded-full bg-primary" />
@@ -79,22 +82,25 @@ export function Topbar({
         </span>
       </div>
 
-      {/* ── Right: Zone Selector · Notifications · Avatar ── */}
-      <div className="ml-auto flex items-center gap-3">
-        <Select value={activeZone} onValueChange={onZoneChange}>
-          <SelectTrigger size="sm" aria-label="Select zone">
-            <SelectValue placeholder="Select zone" />
-          </SelectTrigger>
-          <SelectContent>
-            {ZONES.map((zone) => (
-              <SelectItem key={zone.value} value={zone.value}>
-                {zone.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Right: Zone Selector · Notifications · Avatar */}
+      <div className="ml-auto flex items-center gap-2 sm:gap-3">
+        {/* Zone selector — hidden on mobile, shown on sm+ */}
+        <div className="hidden sm:block">
+          <Select value={activeZone} onValueChange={onZoneChange}>
+            <SelectTrigger size="sm" aria-label="Select zone">
+              <SelectValue placeholder="Select zone" />
+            </SelectTrigger>
+            <SelectContent>
+              {ZONES.map((zone) => (
+                <SelectItem key={zone.value} value={zone.value}>
+                  {zone.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Separator orientation="vertical" className="h-6" />
+        <Separator orientation="vertical" className="hidden h-6 sm:block" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

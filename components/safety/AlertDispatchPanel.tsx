@@ -36,7 +36,7 @@ const cardVariant = {
 
 export function AlertDispatchPanel() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold">Alert Dispatch Log</h3>
 
       <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-2">

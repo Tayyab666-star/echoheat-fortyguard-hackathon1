@@ -50,7 +50,7 @@ const cardVariant = {
 
 export function ChillerStatusGrid() {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold">Chiller Status</h3>
 
       <motion.div

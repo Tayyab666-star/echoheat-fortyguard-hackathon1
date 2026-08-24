@@ -61,7 +61,7 @@ export function WorkRestSchedule() {
     : 0
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-sm font-semibold">Work / Rest Schedule</h3>
         <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-surface-2 px-2.5 py-1 text-[11px] font-medium">

@@ -38,17 +38,17 @@ export default function FleetPage() {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex h-[calc(100vh-3.5rem)] gap-4"
+      className="flex h-auto min-h-[calc(100vh-3.5rem)] flex-col gap-4 md:h-[calc(100vh-3.5rem)] md:flex-row"
     >
       {/* Left panel — 60% */}
-      <motion.div variants={item} className="flex-1 min-w-0 overflow-y-auto">
+      <motion.div variants={item} className="min-h-[300px] min-w-0 overflow-y-auto md:flex-1 md:min-h-0">
         <RouteHeatMap />
       </motion.div>
 
       {/* Right panel — 40% */}
       <motion.div
         variants={item}
-        className="flex w-full max-w-[40%] flex-col border-l border-white/10"
+        className="flex w-full flex-col border-t border-white/10 md:max-w-[40%] md:border-l md:border-t-0"
       >
         <div className="flex-1 overflow-y-auto p-4">
           <AssetTable onSelectVehicle={handleSelectVehicle} />

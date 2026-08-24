@@ -21,7 +21,7 @@ const METRICS: MetricRow[] = [
 
 export function MonthlyROICard() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold mb-4">Monthly ROI Comparison</h3>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

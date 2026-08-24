@@ -1,9 +1,9 @@
 "use client"
 
 import * as React from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
 import {
   Flame,
   LayoutDashboard,
@@ -15,6 +15,8 @@ import {
   Settings2,
   PanelLeftClose,
   PanelLeftOpen,
+  Menu,
+  X,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -43,17 +45,12 @@ interface SidebarProps {
   onToggle?: () => void
 }
 
-export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
+function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname()
 
   return (
-    <motion.aside
-      data-slot="sidebar"
-      animate={{ width: collapsed ? 64 : 240 }}
-      transition={SPRING}
-      className="fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-white/10 bg-surface-1"
-    >
-      {/* ── Logo ── */}
+    <>
+      {/* Logo */}
       <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-white/10 px-4">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15">
           <Flame className="size-4 text-primary" />
@@ -73,7 +70,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         </AnimatePresence>
       </div>
 
-      {/* ── Navigation ── */}
+      {/* Navigation */}
       <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Main">
         <ul className="flex flex-col gap-0.5" role="list">
           {NAV_ITEMS.map((item, index) => {
@@ -93,6 +90,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                     <Link
                       href={item.href}
                       aria-current={isActive ? "page" : undefined}
+                      onClick={onNavigate}
                       className={cn(
                         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                         "border-l-2",
@@ -134,7 +132,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
         </ul>
       </nav>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <div className="shrink-0 border-t border-white/10 p-2">
         <Button
           variant="ghost"
@@ -176,17 +174,78 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                 transition={{ duration: 0.15 }}
                 className="min-w-0 overflow-hidden"
               >
-                <p className="truncate text-xs font-medium leading-none">
-                  Operator
-                </p>
-                <p className="mt-1 truncate text-[10px] text-muted-foreground">
-                  Powered by FortyGuard API
-                </p>
+                <p className="truncate text-xs font-medium leading-none">Operator</p>
+                <p className="mt-1 truncate text-[10px] text-muted-foreground">Powered by FortyGuard API</p>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
+    </>
+  )
+}
+
+export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
+  return (
+    <motion.aside
+      data-slot="sidebar"
+      animate={{ width: collapsed ? 64 : 240 }}
+      transition={SPRING}
+      className="fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-white/10 bg-surface-1 md:flex"
+    >
+      <SidebarContent collapsed={collapsed} onToggle={onToggle} />
     </motion.aside>
+  )
+}
+
+export function MobileSidebar() {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <>
+      {/* Hamburger button — visible on mobile only */}
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed left-4 top-3 z-50 flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground md:hidden"
+        aria-label="Open menu"
+      >
+        <Menu className="size-5" />
+      </button>
+
+      {/* Backdrop + drawer */}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden"
+              onClick={() => setOpen(false)}
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={SPRING}
+              className="fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-white/10 bg-surface-1 md:hidden"
+            >
+              {/* Close button */}
+              <div className="absolute right-3 top-3">
+                <button
+                  onClick={() => setOpen(false)}
+                  className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  aria-label="Close menu"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              <SidebarContent collapsed={false} onToggle={() => setOpen(false)} onNavigate={() => setOpen(false)} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   )
 }

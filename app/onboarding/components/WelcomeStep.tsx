@@ -36,7 +36,7 @@ const fadeUp = {
 
 export function WelcomeStep() {
   return (
-    <div className="flex flex-col items-center gap-10 text-center">
+    <div className="flex flex-col items-center gap-8 text-center sm:gap-10">
       {/* Logo */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
@@ -57,7 +57,7 @@ export function WelcomeStep() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.15 }}
-        className="text-3xl font-black leading-tight tracking-tight text-foreground"
+        className="text-2xl font-black leading-tight tracking-tight text-foreground sm:text-3xl"
       >
         Your Thermal Orchestration
         <br />

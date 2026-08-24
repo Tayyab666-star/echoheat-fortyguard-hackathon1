@@ -28,7 +28,7 @@ export function MetricCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.24 }}
-      className="col-span-full flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md lg:col-span-3"
+      className="col-span-full flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md lg:col-span-3"
     >
       <div className="flex items-start justify-between">
         <p className="text-xs text-muted-foreground">{label}</p>

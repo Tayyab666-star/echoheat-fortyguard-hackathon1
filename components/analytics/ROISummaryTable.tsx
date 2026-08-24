@@ -65,9 +65,9 @@ export function ROISummaryTable() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md"
+      className="rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="font-mono text-sm font-semibold">ROI Summary — All Segments</h3>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs">
           <Download className="size-3.5" />

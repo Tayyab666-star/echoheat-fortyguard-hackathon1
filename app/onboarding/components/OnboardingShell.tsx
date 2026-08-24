@@ -65,7 +65,7 @@ export function OnboardingShell({
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
         </div>
-        <div className="flex justify-center gap-8 px-6 py-4">
+        <div className="flex justify-center gap-4 px-4 sm:gap-8 sm:px-6 py-4">
           {STEPS.map((step, i) => (
             <div
               key={step.path}
@@ -99,7 +99,7 @@ export function OnboardingShell({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.35 }}
-        className="relative z-10 w-full max-w-xl px-6"
+        className="relative z-10 w-full max-w-xl px-4 sm:px-6"
       >
         {children}
       </motion.div>

@@ -96,12 +96,12 @@ export function AlertCard({ alert, onDetails }: AlertCardProps) {
           : { duration: 0.25 }
       }
       className={cn(
-        "flex flex-col gap-3 rounded-xl border border-white/10 bg-surface-1/80 p-4 backdrop-blur-md transition-colors hover:bg-white/5",
+        "flex flex-col gap-3 rounded-xl border border-white/10 bg-surface-1/80 p-3 sm:p-4 backdrop-blur-md transition-colors hover:bg-white/5",
         cfg.border
       )}
     >
       {/* Top row */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Icon className={cn("size-4 shrink-0", cfg.color)} />
         <Badge variant="outline" className={cn("border px-1.5 py-0 text-[9px] font-bold uppercase", typeLabel.className)}>
           {typeLabel.text}
@@ -118,12 +118,12 @@ export function AlertCard({ alert, onDetails }: AlertCardProps) {
 
       {/* Location */}
       <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-        <MapPin className="size-3" />
-        {alert.location}
+        <MapPin className="size-3 shrink-0" />
+        <span className="truncate">{alert.location}</span>
       </div>
 
       {/* Bottom row */}
-      <div className="flex items-center gap-2 pt-1 border-t border-white/5">
+      <div className="flex flex-wrap items-center gap-2 border-t border-white/5 pt-2">
         {alert.actions.map((action) => (
           <Button
             key={action.label}

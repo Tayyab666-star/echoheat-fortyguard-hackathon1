@@ -45,7 +45,7 @@ const row = {
 
 export function ComplianceLogTable() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-sm font-semibold">OSHA Compliance Log</h3>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
@@ -54,7 +54,7 @@ export function ComplianceLogTable() {
         </Button>
       </div>
 
-      <div className="rounded-xl border border-white/10">
+      <div className="overflow-x-auto rounded-xl border border-white/10">
         <Table>
           <TableHeader>
             <TableRow className="border-white/10 hover:bg-transparent">

@@ -147,7 +147,7 @@ export function LiveActionFeed() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.32 }}
-      className="col-span-full flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md lg:col-span-3"
+      className="col-span-full flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md lg:col-span-3"
     >
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-sm font-semibold">Live Action Feed</h3>

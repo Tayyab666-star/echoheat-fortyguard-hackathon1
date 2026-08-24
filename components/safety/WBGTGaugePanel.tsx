@@ -71,7 +71,7 @@ export function WBGTGaugePanel({ value = 41.2, actionLevel = 32 }: WBGTGaugePane
   const sectors = getSectors()
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md">
+    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="flex items-center justify-between w-full">
         <h3 className="font-mono text-sm font-semibold">WBGT Gauge</h3>
         {exceeded && (
