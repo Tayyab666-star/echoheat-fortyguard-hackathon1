@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  experimental: {
+    // Exclude backend directory from build
+  },
 };
 
 export default nextConfig;

@@ -1,0 +1,5 @@
+backend
+_backend_temp
+node_modules
+.vercel
+.next
