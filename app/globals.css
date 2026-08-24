@@ -1,0 +1,114 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: 9 9 11;
+  --foreground: 250 250 250;
+  --surface-1: 24 24 27;
+  --surface-2: 39 39 42;
+  --card: 24 24 27;
+  --card-foreground: 250 250 250;
+  --popover: 39 39 42;
+  --popover-foreground: 250 250 250;
+  --primary: 249 115 22;
+  --primary-foreground: 9 9 11;
+  --secondary: 39 39 42;
+  --secondary-foreground: 250 250 250;
+  --muted: 24 24 27;
+  --muted-foreground: 161 161 170;
+  --accent: 39 39 42;
+  --accent-foreground: 250 250 250;
+  --destructive: 239 68 68;
+  --border: 63 63 70;
+  --input: 63 63 70;
+  --ring: 249 115 22;
+  --success: 34 197 94;
+  --warning: 234 179 8;
+  --danger: 239 68 68;
+  --radius: 0.625rem;
+}
+
+@theme inline {
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-surface-1: rgb(var(--surface-1));
+  --color-surface-2: rgb(var(--surface-2));
+  --color-card: rgb(var(--card));
+  --color-card-foreground: rgb(var(--card-foreground));
+  --color-popover: rgb(var(--popover));
+  --color-popover-foreground: rgb(var(--popover-foreground));
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+  --color-muted: rgb(var(--muted));
+  --color-muted-foreground: rgb(var(--muted-foreground));
+  --color-accent: rgb(var(--accent));
+  --color-accent-foreground: rgb(var(--accent-foreground));
+  --color-destructive: rgb(var(--destructive));
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --color-success: rgb(var(--success));
+  --color-warning: rgb(var(--warning));
+  --color-danger: rgb(var(--danger));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+@theme {
+  --animate-pulse-heat: pulse-heat 2.4s ease-in-out infinite;
+
+  @keyframes pulse-heat {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.55);
+      opacity: 1;
+    }
+    50% {
+      box-shadow: 0 0 14px 5px rgba(249, 115, 22, 0.18);
+      opacity: 0.82;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-grid {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 31px,
+        rgba(255, 255, 255, 0.03) 31px,
+        rgba(255, 255, 255, 0.03) 32px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 31px,
+        rgba(255, 255, 255, 0.03) 31px,
+        rgba(255, 255, 255, 0.03) 32px
+      );
+  }
+}
