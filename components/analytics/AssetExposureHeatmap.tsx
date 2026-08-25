@@ -102,13 +102,13 @@ export function AssetExposureHeatmap() {
   }
 
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold mb-4">Asset Exposure Heatmap — WBGT by Hour</h3>
 
       <div ref={ref} className="overflow-x-auto">
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="w-full min-w-[600px]"
+          className="w-full min-w-[400px] sm:min-w-[600px]"
           aria-label="Asset exposure heatmap showing WBGT temperatures across days and hours"
           role="img"
         >
@@ -198,7 +198,7 @@ export function AssetExposureHeatmap() {
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="pointer-events-none absolute z-10 rounded-lg border border-white/10 bg-surface-2 px-3 py-2 shadow-lg"
+          className="pointer-events-none absolute z-10 rounded-lg border border-border bg-surface-2 px-3 py-2 shadow-lg"
           style={{ left: tooltip.x, top: tooltip.y, transform: "translate(-50%, -100%)" }}
         >
           <p className="text-[10px] font-bold text-foreground">{tooltip.day} at {formatHour(tooltip.hour)}</p>

@@ -29,7 +29,7 @@ export function MetricCard({
     return (
       <div
         data-slot="metric-card-skeleton"
-        className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md"
+        className="relative flex flex-col justify-between gap-4 overflow-hidden rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md"
       >
         <div className={cn("absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-surface-2", "animate-pulse")} />
         <div className="flex items-start justify-between">
@@ -51,7 +51,7 @@ export function MetricCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.24 }}
-      className="relative overflow-hidden rounded-2xl border border-white/10 bg-surface-1/80 p-6 backdrop-blur-md"
+      className="relative overflow-hidden rounded-2xl border border-border bg-surface-1/80 p-6 backdrop-blur-md"
     >
       {/* Accent left border */}
       <div className={cn("absolute left-0 top-0 h-full w-1 rounded-l-2xl", accentColor)} />

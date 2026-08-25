@@ -37,7 +37,7 @@ export function AlertTimeline({ alerts, onDetails }: AlertTimelineProps) {
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 {group.label}
               </span>
-              <div className="h-px flex-1 bg-white/10" />
+              <div className="h-px flex-1 bg-surface-divider" />
             </div>
 
             <AnimatePresence initial={false}>

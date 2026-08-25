@@ -8,7 +8,7 @@ function SkeletonBlock({ className }: SkeletonBlockProps) {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-white/10 bg-surface-1/80 backdrop-blur-md",
+        "overflow-hidden rounded-2xl border border-border bg-surface-1/80 backdrop-blur-md",
         className
       )}
     >

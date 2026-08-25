@@ -131,7 +131,7 @@ export function AssetDetailDrawer({ open, onOpenChange, vehicle }: AssetDetailDr
         <SheetHeader>
           <div className="flex items-center gap-3">
             <SheetTitle className="font-mono text-lg">{vehicle.id}</SheetTitle>
-            <Badge variant="outline" className="border-white/20 bg-surface-2 text-[10px] font-mono">
+            <Badge variant="outline" className="border-border bg-surface-2 text-[10px] font-mono">
               {vehicle.route}
             </Badge>
           </div>
@@ -142,7 +142,7 @@ export function AssetDetailDrawer({ open, onOpenChange, vehicle }: AssetDetailDr
 
         <div className="flex flex-col gap-5 px-4 pb-4">
           {/* Temperature Timeline */}
-          <div className="rounded-xl border border-white/10 bg-surface-1 p-4">
+          <div className="rounded-xl border border-border bg-surface-1 p-4">
             <p className="mb-3 text-xs font-medium text-muted-foreground">
               Internal Temp — Past 8 Hours
             </p>
@@ -156,7 +156,7 @@ export function AssetDetailDrawer({ open, onOpenChange, vehicle }: AssetDetailDr
               return (
                 <div
                   key={stat.label}
-                  className="flex flex-col gap-1 rounded-lg border border-white/10 bg-surface-1 p-3"
+                  className="flex flex-col gap-1 rounded-lg border border-border bg-surface-1 p-3"
                 >
                   <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                     <Icon className="size-3" />

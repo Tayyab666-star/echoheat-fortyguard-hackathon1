@@ -30,7 +30,7 @@ interface SiteSelectorProps {
 
 export function SiteSelector({ activeSite = "c", onSelectSite }: SiteSelectorProps) {
   return (
-    <div className="flex gap-1 overflow-x-auto border-b border-white/10">
+    <div className="flex gap-1 overflow-x-auto border-b border-border">
       {SITES.map((site) => {
         const isActive = site.id === activeSite
         const styles = RISK_STYLES[site.risk]
@@ -43,7 +43,7 @@ export function SiteSelector({ activeSite = "c", onSelectSite }: SiteSelectorPro
               "border-b-2 -mb-px",
               isActive
                 ? "border-primary text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-white/5"
+                : "border-transparent text-muted-foreground hover:text-foreground hover:bg-surface-hover"
             )}
             aria-selected={isActive}
             role="tab"

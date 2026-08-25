@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { MetricValue } from "@/components/ui/echo/Text"
 
 const W = 120
 const H = 36
@@ -88,13 +89,11 @@ export function KPITrendMini({
   const gradientId = `spark-${label.replace(/\s/g, "")}`
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-surface-1/80 p-4 backdrop-blur-md">
-      <p className="text-[10px] text-muted-foreground">{label}</p>
+    <div className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-1/80 p-4 backdrop-blur-md">
+      <p className="text-[10px] text-text-muted font-medium uppercase tracking-widest">{label}</p>
 
       <div className="flex items-end justify-between gap-2">
-        <span className="font-mono text-2xl font-black tabular-nums">
-          {currentValue}
-        </span>
+        <MetricValue>{currentValue}</MetricValue>
 
         <span className={cn("flex items-center gap-0.5 text-[10px] font-medium", trendColor)}>
           <TrendIcon className="size-3" />

@@ -15,7 +15,7 @@ export function ThermalAlertMap() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="relative col-span-full flex min-h-[250px] flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:min-h-[320px] sm:p-6 backdrop-blur-md lg:col-span-6"
+      className="relative col-span-full flex min-h-[250px] flex-col justify-between overflow-hidden rounded-2xl border border-border bg-surface-1/80 p-4 sm:min-h-[320px] sm:p-6 backdrop-blur-md lg:col-span-6"
     >
       {/* Map placeholder */}
       <div className="absolute inset-0 bg-surface-2/60">
@@ -44,7 +44,7 @@ export function ThermalAlertMap() {
           {ZONES.map((zone) => (
             <span
               key={zone.label}
-              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-surface-2/80 px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm"
+              className="flex items-center gap-1.5 rounded-full border border-border bg-surface-2/80 px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm"
             >
               <span className={`size-1.5 rounded-full ${zone.color}`} />
               <span className="text-foreground">{zone.label}</span>
@@ -54,7 +54,7 @@ export function ThermalAlertMap() {
         </div>
 
         {/* Stat strip */}
-        <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-background/60 px-3 py-2 text-xs backdrop-blur-sm">
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-background/60 px-3 py-2 text-xs backdrop-blur-sm">
           <span className="relative flex size-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex size-2 rounded-full bg-primary" />

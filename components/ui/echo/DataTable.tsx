@@ -40,14 +40,14 @@ export function DataTable<T extends Record<string, unknown>>({
       <div
         data-slot="data-table-skeleton"
         className={cn(
-          "overflow-hidden rounded-xl border border-white/10 bg-surface-1/80",
+          "overflow-hidden rounded-xl border border-border bg-surface-1",
           className
         )}
         {...props}
       >
         <Table>
           <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent">
+            <TableRow className="border-border hover:bg-transparent">
               {columns.map((col) => (
                 <TableHead key={col.key} className={col.className}>
                   <div className="h-3 w-16 rounded bg-surface-2 animate-pulse" />
@@ -57,7 +57,7 @@ export function DataTable<T extends Record<string, unknown>>({
           </TableHeader>
           <TableBody>
             {Array.from({ length: 4 }).map((_, i) => (
-              <TableRow key={i} className="border-white/5 hover:bg-transparent">
+              <TableRow key={i} className="border-border/50 hover:bg-transparent">
                 {columns.map((col) => (
                   <TableCell key={col.key} className={col.className}>
                     <div
@@ -82,7 +82,7 @@ export function DataTable<T extends Record<string, unknown>>({
       <div
         data-slot="data-table-empty"
         className={cn(
-          "flex flex-col items-center justify-center gap-3 rounded-xl border border-white/10 bg-surface-1/80 py-16",
+          "flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-surface-1 py-16",
           className
         )}
         {...props}
@@ -97,14 +97,14 @@ export function DataTable<T extends Record<string, unknown>>({
     <div
       data-slot="data-table"
       className={cn(
-        "overflow-hidden rounded-xl border border-white/10 bg-surface-1/80",
+        "overflow-hidden rounded-xl border border-border bg-surface-1",
         className
       )}
       {...props}
     >
       <Table>
         <TableHeader>
-          <TableRow className="border-white/10 hover:bg-transparent">
+          <TableRow className="border-border hover:bg-transparent">
             {columns.map((col) => (
               <TableHead
                 key={col.key}
@@ -120,8 +120,8 @@ export function DataTable<T extends Record<string, unknown>>({
             <TableRow
               key={rowIdx}
               className={cn(
-                "border-white/5 transition-colors",
-                onRowClick && "cursor-pointer hover:bg-white/5"
+                "border-border/50 transition-colors",
+                onRowClick && "cursor-pointer hover:bg-surface-hover"
               )}
               onClick={() => onRowClick?.(row)}
             >

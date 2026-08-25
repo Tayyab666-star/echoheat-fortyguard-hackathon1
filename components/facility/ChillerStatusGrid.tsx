@@ -50,7 +50,7 @@ const cardVariant = {
 
 export function ChillerStatusGrid() {
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold">Chiller Status</h3>
 
       <motion.div
@@ -68,7 +68,7 @@ export function ChillerStatusGrid() {
               variants={cardVariant}
               animate={cfg.pulse ? { boxShadow: ["0 0 0 0 rgba(249,115,22,0)", "0 0 12px 2px rgba(249,115,22,0.12)", "0 0 0 0 rgba(249,115,22,0)"] } : {}}
               transition={cfg.pulse ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" } : undefined}
-              className="flex flex-col gap-3 rounded-xl border border-white/10 bg-surface-2/40 p-4"
+              className="flex flex-col gap-3 rounded-xl border border-border bg-surface-2/40 p-4"
             >
               {/* Header */}
               <div className="flex items-center justify-between">

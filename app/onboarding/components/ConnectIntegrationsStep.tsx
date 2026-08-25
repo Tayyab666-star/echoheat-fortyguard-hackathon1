@@ -22,7 +22,7 @@ const INTEGRATIONS: Integration[] = [
     id: "samsara",
     name: "Samsara",
     icon: <Truck className="size-5" />,
-    iconBg: "bg-blue-500/15 text-blue-400",
+    iconBg: "bg-info/15 text-info",
     description: "Connect for Fleet & Cold Chain",
     oauthLabel: "Connect via OAuth",
     assetsFound: 34,
@@ -92,7 +92,7 @@ export function ConnectIntegrationsStep() {
                 "flex items-center gap-4 rounded-xl border p-4 transition-colors",
                 isConnected
                   ? "border-success/30 bg-success/5"
-                  : "border-white/10 bg-white/5 hover:bg-white/[0.07]"
+                  : "border-border bg-surface-hover hover:bg-surface-2"
               )}
             >
               <span

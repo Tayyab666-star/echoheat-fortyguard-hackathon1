@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 import { RouteHeatMap } from "@/components/fleet/RouteHeatMap"
 import { AssetTable } from "@/components/fleet/AssetTable"
@@ -27,6 +28,7 @@ export default function FleetPage() {
     status: string
   } | null>(null)
   const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const [mobileTab, setMobileTab] = React.useState<"map" | "assets">("map")
 
   const handleSelectVehicle = React.useCallback((vehicle: typeof selectedVehicle) => {
     setSelectedVehicle(vehicle)
@@ -38,23 +40,63 @@ export default function FleetPage() {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex h-auto min-h-[calc(100vh-3.5rem)] flex-col gap-4 md:h-[calc(100vh-3.5rem)] md:flex-row"
+      className="flex flex-col gap-4"
     >
-      {/* Left panel — 60% */}
-      <motion.div variants={item} className="min-h-[300px] min-w-0 overflow-y-auto md:flex-1 md:min-h-0">
-        <RouteHeatMap />
-      </motion.div>
+      {/* Mobile: tab switcher */}
+      <div className="flex gap-1 rounded-lg border border-border bg-surface-2 p-0.5 sm:hidden">
+        <button
+          onClick={() => setMobileTab("map")}
+          className={cn(
+            "flex-1 rounded-md px-3 py-2 text-xs font-medium transition-colors",
+            mobileTab === "map"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Map View
+        </button>
+        <button
+          onClick={() => setMobileTab("assets")}
+          className={cn(
+            "flex-1 rounded-md px-3 py-2 text-xs font-medium transition-colors",
+            mobileTab === "assets"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          Assets
+        </button>
+      </div>
 
-      {/* Right panel — 40% */}
-      <motion.div
-        variants={item}
-        className="flex w-full flex-col border-t border-white/10 md:max-w-[40%] md:border-l md:border-t-0"
-      >
-        <div className="flex-1 overflow-y-auto p-4">
+      {/* Mobile: single view */}
+      <div className="sm:hidden">
+        {mobileTab === "map" ? (
+          <div className="min-h-[300px]">
+            <RouteHeatMap />
+          </div>
+        ) : (
           <AssetTable onSelectVehicle={handleSelectVehicle} />
-        </div>
-        <QuickActionBar />
-      </motion.div>
+        )}
+      </div>
+
+      {/* Tablet+: split layout */}
+      <div className="hidden flex-col gap-4 sm:flex-row sm:h-[calc(100vh-8rem)]">
+        {/* Left panel — 60% */}
+        <motion.div variants={item} className="min-h-[300px] min-w-0 overflow-y-auto sm:flex-1 sm:min-h-0">
+          <RouteHeatMap />
+        </motion.div>
+
+        {/* Right panel — 40% */}
+        <motion.div
+          variants={item}
+          className="flex w-full flex-col border-t border-border sm:max-w-[40%] sm:border-l sm:border-t-0"
+        >
+          <div className="flex-1 overflow-y-auto p-4">
+            <AssetTable onSelectVehicle={handleSelectVehicle} />
+          </div>
+          <QuickActionBar />
+        </motion.div>
+      </div>
 
       {/* Detail Drawer */}
       <AssetDetailDrawer

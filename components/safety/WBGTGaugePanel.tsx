@@ -3,6 +3,8 @@
 import { motion, useMotionValue, useTransform, animate } from "framer-motion"
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"
+import { useBreakpoint } from "@/hooks/useChartDimensions"
+import { CardTitle, MetricValue, Caption } from "@/components/ui/echo/Text"
 
 interface WBGTGaugePanelProps {
   value?: number
@@ -45,12 +47,14 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
 }
 
 export function WBGTGaugePanel({ value = 41.2, actionLevel = 32 }: WBGTGaugePanelProps) {
+  const bp = useBreakpoint()
+
+  const gaugeSize = bp === "mobile" ? 160 : bp === "tablet" ? 200 : 260
   const cx = 150
   const cy = 140
   const r = 110
   const maxAngle = 260
 
-  // Map 0-50°C to 0-260°
   const angle = (Math.min(value, 50) / 50) * maxAngle
   const color = getWBGTColor(value)
   const label = getWBGTLabel(value)
@@ -71,9 +75,12 @@ export function WBGTGaugePanel({ value = 41.2, actionLevel = 32 }: WBGTGaugePane
   const sectors = getSectors()
 
   return (
-    <div className="flex flex-col items-center gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className={cn(
+      "flex flex-col gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md",
+      bp === "mobile" ? "items-center" : "items-center"
+    )}>
       <div className="flex items-center justify-between w-full">
-        <h3 className="font-mono text-sm font-semibold">WBGT Gauge</h3>
+        <CardTitle>WBGT Gauge</CardTitle>
         {exceeded && (
           <span className="rounded-md bg-danger/15 px-2 py-0.5 text-[10px] font-bold uppercase text-danger animate-pulse-heat">
             OSHA EXCEEDED
@@ -81,8 +88,24 @@ export function WBGTGaugePanel({ value = 41.2, actionLevel = 32 }: WBGTGaugePane
         )}
       </div>
 
-      <div className="relative">
-        <svg viewBox="0 0 300 170" className="w-full max-w-[320px]" role="img" aria-label={`WBGT: ${value} degrees Celsius`}>
+      {/* Mobile: large hero value above gauge */}
+      {bp === "mobile" && (
+        <div className="flex flex-col items-center gap-1">
+          <MetricValue style={{ color, fontSize: "var(--text-display)" }}>
+            {value.toFixed(1)}\u00B0C
+          </MetricValue>
+          <span className={cn(
+            "rounded-md px-3 py-1 text-sm font-bold uppercase",
+            exceeded ? "bg-danger/15 text-danger" : "bg-success/15 text-success"
+          )}>
+            Status: {exceeded ? "EXCEEDED" : "SAFE"}
+          </span>
+        </div>
+      )}
+
+      {/* Gauge SVG */}
+      <div className="relative" style={{ width: gaugeSize, height: gaugeSize * 0.65 }}>
+        <svg viewBox="0 0 300 170" className="w-full h-full" role="img" aria-label={`WBGT: ${value} degrees Celsius`}>
           <defs>
             <filter id="glow">
               <feGaussianBlur stdDeviation="3" result="blur" />
@@ -143,28 +166,41 @@ export function WBGTGaugePanel({ value = 41.2, actionLevel = 32 }: WBGTGaugePane
         </svg>
       </div>
 
-      {/* Info strip */}
-      <div className="flex flex-col items-center gap-2 text-center">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-xs text-muted-foreground">Current WBGT:</span>
-          <span className="font-mono text-2xl font-black tabular-nums" style={{ color }}>
-            {value.toFixed(1)}\u00B0C
-          </span>
-        </div>
+      {/* Desktop/Tablet: info below gauge */}
+      {bp !== "mobile" && (
+        <div className="flex flex-col items-center gap-2 text-center">
+          <div className="flex items-baseline gap-1.5">
+            <Caption>Current WBGT:</Caption>
+            <MetricValue style={{ color, fontSize: "var(--text-heading2)" }}>
+              {value.toFixed(1)}\u00B0C
+            </MetricValue>
+          </div>
 
-        {exceeded && (
-          <span className="rounded-md bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">
-            OSHA Action Level: EXCEEDED
-          </span>
-        )}
+          {exceeded && (
+            <span className="rounded-md bg-danger/10 px-2 py-0.5 text-xs font-semibold text-danger">
+              OSHA Action Level: EXCEEDED
+            </span>
+          )}
 
-        <div className="rounded-lg border border-white/10 bg-surface-2/60 px-3 py-2 text-xs">
-          <span className="text-muted-foreground">Work/Rest Ratio: </span>
-          <span className="font-mono font-bold text-warning">10 min work</span>
-          <span className="text-muted-foreground"> / </span>
-          <span className="font-mono font-bold text-danger">50 min rest required</span>
+          <div className="rounded-lg border border-border bg-surface-2/60 px-3 py-2 text-xs">
+            <span className="text-muted-foreground">Work/Rest Ratio: </span>
+            <span className="font-mono font-bold text-warning">10 min work</span>
+            <span className="text-muted-foreground"> / </span>
+            <span className="font-mono font-bold text-danger">50 min rest required</span>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Mobile: compact info below gauge */}
+      {bp === "mobile" && (
+        <div className="flex flex-col items-center gap-1 text-center">
+          <div className="rounded-lg border border-border bg-surface-2/60 px-3 py-2 text-xs">
+            <span className="font-mono font-bold text-warning">10 min work</span>
+            <span className="text-muted-foreground"> / </span>
+            <span className="font-mono font-bold text-danger">50 min rest</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

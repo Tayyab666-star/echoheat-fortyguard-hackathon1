@@ -1,6 +1,7 @@
 "use client"
 
-import { motion } from "framer-motion"
+import * as React from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   AlertTriangle,
   Flame,
@@ -8,11 +9,13 @@ import {
   CheckCircle2,
   MapPin,
   Clock,
+  ChevronDown,
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { useBreakpoint } from "@/hooks/useChartDimensions"
 
 type Severity = "CRITICAL" | "WARNING" | "INFO" | "RESOLVED"
 type AlertType = "PRE_COOL" | "ROUTE_RISK" | "OSHA_BREACH" | "FACILITY_PEAK"
@@ -64,8 +67,8 @@ const TYPE_LABELS: Record<AlertType, { text: string; className: string }> = {
 }
 
 const ACTION_STYLES: Record<string, string> = {
-  primary: "bg-info text-white hover:bg-info/90",
-  blue: "bg-info text-white hover:bg-info/90",
+  primary: "bg-info text-text-on hover:bg-info/90",
+  blue: "bg-info text-text-on hover:bg-info/90",
   orange: "bg-primary text-primary-foreground hover:bg-primary/90",
   ghost: "text-muted-foreground hover:text-foreground",
 }
@@ -76,6 +79,10 @@ interface AlertCardProps {
 }
 
 export function AlertCard({ alert, onDetails }: AlertCardProps) {
+  const [expanded, setExpanded] = React.useState(false)
+  const bp = useBreakpoint()
+  const isMobile = bp === "mobile"
+
   const cfg = SEVERITY_CONFIG[alert.severity]
   const Icon = cfg.icon
   const typeLabel = TYPE_LABELS[alert.type]
@@ -96,56 +103,136 @@ export function AlertCard({ alert, onDetails }: AlertCardProps) {
           : { duration: 0.25 }
       }
       className={cn(
-        "flex flex-col gap-3 rounded-xl border border-white/10 bg-surface-1/80 p-3 sm:p-4 backdrop-blur-md transition-colors hover:bg-white/5",
-        cfg.border
+        "rounded-xl border border-border bg-surface-1/80 backdrop-blur-md transition-colors",
+        cfg.border,
+        isMobile ? "p-3" : "flex flex-col gap-3 p-3 sm:p-4 hover:bg-surface-hover"
       )}
     >
-      {/* Top row */}
-      <div className="flex flex-wrap items-center gap-2">
-        <Icon className={cn("size-4 shrink-0", cfg.color)} />
-        <Badge variant="outline" className={cn("border px-1.5 py-0 text-[9px] font-bold uppercase", typeLabel.className)}>
-          {typeLabel.text}
-        </Badge>
-        <span className="font-mono text-xs font-bold">{alert.asset}</span>
-        <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground">
-          <Clock className="size-3" />
-          {alert.timestamp}
-        </span>
-      </div>
-
-      {/* Message */}
-      <p className="text-sm text-foreground/90">{alert.message}</p>
-
-      {/* Location */}
-      <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-        <MapPin className="size-3 shrink-0" />
-        <span className="truncate">{alert.location}</span>
-      </div>
-
-      {/* Bottom row */}
-      <div className="flex flex-wrap items-center gap-2 border-t border-white/5 pt-2">
-        {alert.actions.map((action) => (
-          <Button
-            key={action.label}
-            size="sm"
-            variant={action.variant === "ghost" ? "ghost" : "default"}
-            className={cn(
-              "gap-1.5 text-xs",
-              ACTION_STYLES[action.variant]
-            )}
+      {/* ═══ MOBILE COLLAPSED VIEW ═══ */}
+      {isMobile && (
+        <>
+          {/* Collapsed header — always visible */}
+          <button
+            onClick={() => setExpanded((p) => !p)}
+            className="flex w-full items-center gap-2 text-left"
           >
-            {action.label}
-          </Button>
-        ))}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ml-auto text-xs text-muted-foreground"
-          onClick={() => onDetails?.(alert)}
-        >
-          View Details
-        </Button>
-      </div>
+            <Icon className={cn("size-4 shrink-0", cfg.color)} />
+            <Badge variant="outline" className={cn("border px-1.5 py-0 text-[9px] font-bold uppercase shrink-0", typeLabel.className)}>
+              {typeLabel.text}
+            </Badge>
+            <span className="font-mono text-xs font-bold shrink-0">{alert.asset}</span>
+            <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground shrink-0">
+              <Clock className="size-3" />
+              {alert.timestamp}
+            </span>
+            <ChevronDown className={cn("size-4 shrink-0 text-muted-foreground transition-transform", expanded && "rotate-180")} />
+          </button>
+
+          {/* Collapsed message */}
+          <p className="mt-1.5 text-sm text-text-primary/90 line-clamp-2">{alert.message}</p>
+
+          {/* Expanded content */}
+          <AnimatePresence>
+            {expanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-col gap-3 pt-2">
+                  {/* Location */}
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <MapPin className="size-3 shrink-0" />
+                    <span className="truncate">{alert.location}</span>
+                  </div>
+
+                  {/* Separator */}
+                  <div className="h-px bg-surface-divider" />
+
+                  {/* Actions — full width on mobile */}
+                  <div className="flex flex-col gap-2">
+                    {alert.actions.map((action) => (
+                      <Button
+                        key={action.label}
+                        size="sm"
+                        variant={action.variant === "ghost" ? "ghost" : "default"}
+                        className={cn(
+                          "w-full gap-1.5 text-xs",
+                          ACTION_STYLES[action.variant]
+                        )}
+                      >
+                        {action.label}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs text-muted-foreground"
+                      onClick={() => onDetails?.(alert)}
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
+
+      {/* ═══ DESKTOP/TABLET VIEW ═══ */}
+      {!isMobile && (
+        <>
+          {/* Top row */}
+          <div className="flex flex-wrap items-center gap-2">
+            <Icon className={cn("size-4 shrink-0", cfg.color)} />
+            <Badge variant="outline" className={cn("border px-1.5 py-0 text-[9px] font-bold uppercase", typeLabel.className)}>
+              {typeLabel.text}
+            </Badge>
+            <span className="font-mono text-xs font-bold">{alert.asset}</span>
+            <span className="ml-auto flex items-center gap-1 text-[10px] text-muted-foreground">
+              <Clock className="size-3" />
+              {alert.timestamp}
+            </span>
+          </div>
+
+          {/* Message */}
+          <p className="text-sm text-text-primary/90">{alert.message}</p>
+
+          {/* Location */}
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <MapPin className="size-3 shrink-0" />
+            <span className="truncate">{alert.location}</span>
+          </div>
+
+          {/* Bottom row */}
+          <div className="flex flex-wrap items-center gap-2 border-t border-surface-divider pt-2">
+            {alert.actions.map((action) => (
+              <Button
+                key={action.label}
+                size="sm"
+                variant={action.variant === "ghost" ? "ghost" : "default"}
+                className={cn(
+                  "gap-1.5 text-xs",
+                  ACTION_STYLES[action.variant]
+                )}
+              >
+                {action.label}
+              </Button>
+            ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto text-xs text-muted-foreground"
+              onClick={() => onDetails?.(alert)}
+            >
+              View Details
+            </Button>
+          </div>
+        </>
+      )}
     </motion.div>
   )
 }

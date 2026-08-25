@@ -4,6 +4,7 @@ import { Search } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { CardTitle } from "@/components/ui/echo/Text"
 
 type Filter = "all" | "critical" | "warning" | "executed" | "pending"
 
@@ -34,7 +35,7 @@ export function AlertFeedHeader({
     <div className="flex flex-col gap-3">
       {/* Top row: title + mark all read */}
       <div className="flex items-center justify-between">
-        <h2 className="font-mono text-lg font-bold">Alert Feed</h2>
+        <CardTitle>Alert Feed</CardTitle>
         <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onMarkAllRead}>
           Mark All Read
         </Button>
@@ -51,7 +52,7 @@ export function AlertFeedHeader({
                 "rounded-full px-3 py-1 text-xs font-medium transition-colors",
                 activeFilter === f.value
                   ? "bg-primary text-primary-foreground"
-                  : "bg-surface-2 text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  : "bg-surface-2 text-muted-foreground hover:bg-surface-hover hover:text-foreground"
               )}
             >
               {f.label}

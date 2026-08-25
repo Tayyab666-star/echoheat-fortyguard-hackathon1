@@ -51,7 +51,7 @@ function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { on
   return (
     <>
       {/* Logo */}
-      <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-white/10 px-4">
+      <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-border px-4">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15">
           <Flame className="size-4 text-primary" />
         </span>
@@ -95,8 +95,8 @@ function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { on
                         "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                         "border-l-2",
                         isActive
-                          ? "border-primary bg-primary/10 text-orange-400"
-                          : "border-transparent text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                          ? "border-primary bg-primary-glow text-primary"
+                          : "border-transparent text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                       )}
                     >
                       <Icon className="size-4 shrink-0" />
@@ -133,7 +133,7 @@ function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { on
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 border-t border-white/10 p-2">
+      <div className="shrink-0 border-t border-border p-2">
         <Button
           variant="ghost"
           size="sm"
@@ -191,7 +191,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       data-slot="sidebar"
       animate={{ width: collapsed ? 64 : 240 }}
       transition={SPRING}
-      className="fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-white/10 bg-surface-1 md:flex"
+      className="fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-border bg-surface-1 md:flex"
     >
       <SidebarContent collapsed={collapsed} onToggle={onToggle} />
     </motion.aside>
@@ -206,7 +206,7 @@ export function MobileSidebar() {
       {/* Hamburger button — visible on mobile only */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed left-4 top-3 z-50 flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground md:hidden"
+        className="fixed left-4 top-3 z-50 flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground md:hidden"
         aria-label="Open menu"
       >
         <Menu className="size-5" />
@@ -221,7 +221,7 @@ export function MobileSidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-50 bg-overlay backdrop-blur-sm md:hidden"
               onClick={() => setOpen(false)}
             />
             <motion.aside
@@ -229,13 +229,13 @@ export function MobileSidebar() {
               animate={{ x: 0 }}
               exit={{ x: -280 }}
               transition={SPRING}
-              className="fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-white/10 bg-surface-1 md:hidden"
+              className="fixed left-0 top-0 z-50 flex h-screen w-[260px] flex-col border-r border-border bg-surface-1 md:hidden"
             >
               {/* Close button */}
               <div className="absolute right-3 top-3">
                 <button
                   onClick={() => setOpen(false)}
-                  className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground"
+                  className="flex size-7 items-center justify-center rounded-md text-muted-foreground hover:bg-surface-hover hover:text-foreground"
                   aria-label="Close menu"
                 >
                   <X className="size-4" />

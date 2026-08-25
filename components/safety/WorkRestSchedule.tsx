@@ -61,10 +61,10 @@ export function WorkRestSchedule() {
     : 0
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-sm font-semibold">Work / Rest Schedule</h3>
-        <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-surface-2 px-2.5 py-1 text-[11px] font-medium">
+        <span className="flex items-center gap-1.5 rounded-full border border-border bg-surface-2 px-2.5 py-1 text-[11px] font-medium">
           <span className="relative flex size-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
             <span className="relative inline-flex size-1.5 rounded-full bg-primary" />
@@ -89,7 +89,7 @@ export function WorkRestSchedule() {
         </div>
 
         {/* Block track */}
-        <div className="relative h-8 rounded-full bg-surface-2 overflow-hidden border border-white/5">
+        <div className="relative h-8 rounded-full bg-surface-2 overflow-hidden border border-border/50">
           {SHIFT_BLOCKS.map((block, i) => {
             const left = (block.start / TOTAL_HOURS) * 100
             const width = (block.duration / TOTAL_HOURS) * 100

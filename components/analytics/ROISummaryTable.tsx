@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { CardTitle, DataLabel, MetricValue } from "@/components/ui/echo/Text"
 
 interface SegmentData {
   annualCost: string
@@ -65,10 +66,10 @@ export function ROISummaryTable() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md"
+      className="rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md"
     >
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-mono text-sm font-semibold">ROI Summary — All Segments</h3>
+        <CardTitle>ROI Summary — All Segments</CardTitle>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs">
           <Download className="size-3.5" />
           Export PDF Report
@@ -78,16 +79,16 @@ export function ROISummaryTable() {
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-border">
               <th className="pb-3 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Category
+                <DataLabel>Category</DataLabel>
               </th>
               {SEGMENTS.map((seg) => (
                 <th
                   key={seg.key}
                   className="pb-3 text-right text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
                 >
-                  {seg.label}
+                  <DataLabel>{seg.label}</DataLabel>
                 </th>
               ))}
             </tr>
@@ -95,7 +96,7 @@ export function ROISummaryTable() {
 
           <tbody>
             {/* Annual Cost row */}
-            <tr className="border-b border-white/5">
+            <tr className="border-b border-border/50">
               <td className="py-3 text-muted-foreground">Annual EchoHeat Cost</td>
               {SEGMENTS.map((seg) => (
                 <td key={seg.key} className="py-3 text-right font-mono font-bold tabular-nums">
@@ -107,20 +108,20 @@ export function ROISummaryTable() {
             {/* Separator */}
             <tr>
               <td colSpan={4} className="py-1">
-                <div className="h-px bg-white/5" />
+                <div className="h-px bg-surface-divider" />
               </td>
             </tr>
 
             {/* Avoided Loss header */}
             <tr>
               <td colSpan={4} className="py-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Avoided Loss (Itemized)
+                <DataLabel>Avoided Loss (Itemized)</DataLabel>
               </td>
             </tr>
 
             {/* Itemized rows */}
             {[0, 1, 2, 3].map((idx) => (
-              <tr key={idx} className="border-b border-white/5">
+              <tr key={idx} className="border-b border-border/50">
                 <td className="py-2 pl-4 text-muted-foreground">
                   {SEGMENTS[0].data.avoidedLoss[idx].label}
                 </td>
@@ -135,12 +136,12 @@ export function ROISummaryTable() {
             {/* Separator */}
             <tr>
               <td colSpan={4} className="py-1">
-                <div className="h-px bg-white/5" />
+                <div className="h-px bg-surface-divider" />
               </td>
             </tr>
 
             {/* Net ROI row */}
-            <tr className="border-b border-white/10">
+            <tr className="border-b border-border">
               <td className="py-3 text-muted-foreground">Net ROI Multiplier</td>
               {SEGMENTS.map((seg) => (
                 <td key={seg.key} className="py-3 text-right">
@@ -165,8 +166,8 @@ export function ROISummaryTable() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="font-mono text-3xl font-black text-primary tabular-nums">{BLENDED_ROI}</span>
-          <span className="text-[10px] text-muted-foreground">blended<br />ROI</span>
+          <MetricValue className="text-primary">{BLENDED_ROI}</MetricValue>
+          <DataLabel className="text-right leading-tight">blended<br />ROI</DataLabel>
         </div>
       </div>
     </motion.div>

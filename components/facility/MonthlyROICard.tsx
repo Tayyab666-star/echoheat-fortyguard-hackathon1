@@ -3,6 +3,7 @@
 import { motion } from "framer-motion"
 import { TrendingDown, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { CardTitle, DataLabel, MetricValue } from "@/components/ui/echo/Text"
 
 interface MetricRow {
   label: string
@@ -21,12 +22,12 @@ const METRICS: MetricRow[] = [
 
 export function MonthlyROICard() {
   return (
-    <div className="rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
-      <h3 className="font-mono text-sm font-semibold mb-4">Monthly ROI Comparison</h3>
+    <div className="rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+      <CardTitle className="mb-4">Monthly ROI Comparison</CardTitle>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {/* Without EchoHeat */}
-        <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-surface-2/40 p-4">
+        <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface-2/40 p-4">
           <div className="flex items-center gap-2">
             <span className="flex size-6 items-center justify-center rounded-md bg-danger/15 text-danger">
               <TrendingUp className="size-3" />
@@ -77,9 +78,7 @@ export function MonthlyROICard() {
         className="mt-4 flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-4 py-3"
       >
         <span className="text-xs font-semibold">Net Annual Savings</span>
-        <span className="font-mono text-2xl font-black text-primary tabular-nums">
-          $38,200 / year
-        </span>
+        <MetricValue className="text-primary">$38,200 / year</MetricValue>
       </motion.div>
     </div>
   )

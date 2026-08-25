@@ -55,33 +55,33 @@ export function AlertDetailDialog({ open, onOpenChange, alert }: AlertDetailDial
           <div>
             <h4 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Full Context</h4>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-lg border border-white/10 bg-surface-2/40 p-2">
+              <div className="rounded-lg border border-border bg-surface-2/40 p-2">
                 <span className="text-muted-foreground">Severity</span>
                 <p className="font-bold">{alert.severity}</p>
               </div>
-              <div className="rounded-lg border border-white/10 bg-surface-2/40 p-2">
+              <div className="rounded-lg border border-border bg-surface-2/40 p-2">
                 <span className="text-muted-foreground">Location</span>
                 <p className="font-bold">{alert.location}</p>
               </div>
-              <div className="rounded-lg border border-white/10 bg-surface-2/40 p-2">
+              <div className="rounded-lg border border-border bg-surface-2/40 p-2">
                 <span className="text-muted-foreground">Timestamp</span>
                 <p className="font-mono font-bold">{alert.timestamp}</p>
               </div>
-              <div className="rounded-lg border border-white/10 bg-surface-2/40 p-2">
+              <div className="rounded-lg border border-border bg-surface-2/40 p-2">
                 <span className="text-muted-foreground">Status</span>
                 <p className="font-bold">{alert.status}</p>
               </div>
             </div>
           </div>
 
-          <Separator className="bg-white/10" />
+          <Separator className="bg-surface-divider" />
 
           {/* FortyGuard Data Snapshot */}
           <div>
             <h4 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">FortyGuard Data Snapshot</h4>
             <div className="grid grid-cols-2 gap-1.5 text-xs">
               {Object.entries(MOCK_SNAPSHOT).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between rounded border border-white/5 bg-surface-2/30 px-2 py-1">
+                <div key={key} className="flex items-center justify-between rounded border border-border/50 bg-surface-2/30 px-2 py-1">
                   <span className="font-mono text-[10px] text-muted-foreground">{key}</span>
                   <span className="font-mono font-bold">{String(value)}</span>
                 </div>
@@ -89,18 +89,18 @@ export function AlertDetailDialog({ open, onOpenChange, alert }: AlertDetailDial
             </div>
           </div>
 
-          <Separator className="bg-white/10" />
+          <Separator className="bg-surface-divider" />
 
           {/* Thermal Kinetics */}
           <div>
             <h4 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Thermal Kinetics Output</h4>
-            <div className="rounded-lg border border-white/10 bg-surface-2/40 p-3 font-mono text-xs">
+            <div className="rounded-lg border border-border bg-surface-2/40 p-3 font-mono text-xs">
               <p>q = U × A × ΔT = 0.28 × 420 × (42.1 - 19.0) = <span className="text-primary font-bold">2,720 W</span></p>
               <p className="mt-1">t_lag = (ρ × c × V) / (U × A) = <span className="text-primary font-bold">9,600 s ≈ 2h 40m</span></p>
             </div>
           </div>
 
-          <Separator className="bg-white/10" />
+          <Separator className="bg-surface-divider" />
 
           {/* Action Execution Log */}
           <div>
@@ -115,12 +115,12 @@ export function AlertDetailDialog({ open, onOpenChange, alert }: AlertDetailDial
             </div>
           </div>
 
-          <Separator className="bg-white/10" />
+          <Separator className="bg-surface-divider" />
 
           {/* Raw JSON */}
           <div>
             <h4 className="mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Raw JSON Payload</h4>
-            <pre className="overflow-x-auto rounded-lg border border-white/10 bg-surface-2 p-4 font-mono text-[10px] leading-relaxed text-muted-foreground">
+            <pre className="overflow-x-auto rounded-lg border border-border bg-surface-2 p-4 font-mono text-[10px] leading-relaxed text-muted-foreground">
 {JSON.stringify({
   alert_id: alert.id,
   severity: alert.severity,

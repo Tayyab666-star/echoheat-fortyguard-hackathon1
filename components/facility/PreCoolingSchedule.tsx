@@ -47,7 +47,7 @@ export function PreCoolingSchedule() {
   }, [])
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold">Pre-Cooling Schedule</h3>
 
       <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-0">
@@ -76,7 +76,7 @@ export function PreCoolingSchedule() {
                   )}
                 </span>
                 {i < SCHEDULE.length - 1 && (
-                  <div className="w-px flex-1 min-h-[24px] bg-white/10" />
+                  <div className="w-px flex-1 min-h-[24px] bg-surface-divider" />
                 )}
               </div>
 

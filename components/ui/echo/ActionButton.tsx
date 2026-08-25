@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Loader2, Check, RotateCcw } from "lucide-react"
+import { Loader2, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type ActionType = "primary" | "destructive"
@@ -19,12 +19,12 @@ const ACTION_STYLES: Record<ActionType, { idle: string; loading: string; done: s
   primary: {
     idle: "bg-primary text-primary-foreground hover:bg-primary/90",
     loading: "bg-primary/70 text-primary-foreground cursor-wait",
-    done: "bg-success text-white",
+    done: "bg-success text-text-on",
   },
   destructive: {
-    idle: "bg-danger text-white hover:bg-danger/90",
-    loading: "bg-danger/70 text-white cursor-wait",
-    done: "bg-success text-white",
+    idle: "bg-danger text-text-on hover:bg-danger/90",
+    loading: "bg-danger/70 text-text-on cursor-wait",
+    done: "bg-success text-text-on",
   },
 }
 
@@ -74,7 +74,7 @@ export function ActionButton({
       data-slot="action-button"
       data-state={currentState}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors",
+        "inline-flex h-8 items-center gap-1.5 rounded-xl px-3 text-xs font-medium transition-colors",
         styles[currentState],
         (isLoading || isDone || disabled) && "pointer-events-none",
         className

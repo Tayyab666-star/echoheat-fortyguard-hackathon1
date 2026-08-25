@@ -1,7 +1,9 @@
 "use client"
 
+import * as React from "react"
 import { Thermometer, Zap, Fuel, FileText } from "lucide-react"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 import { ThermalAlertMap } from "@/components/dashboard/ThermalAlertMap"
 import { ActiveRiskScore } from "@/components/dashboard/ActiveRiskScore"
@@ -52,9 +54,7 @@ const stagger = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
+    transition: { staggerChildren: 0.06 },
   },
 }
 
@@ -63,48 +63,106 @@ const item = {
   show: { opacity: 1, y: 0 },
 }
 
+function ScrollIndicatorDots({ count, activeIndex }: { count: number; activeIndex: number }) {
+  return (
+    <div className="flex justify-center gap-1.5 pt-1 sm:hidden">
+      {Array.from({ length: count }).map((_, i) => (
+        <span
+          key={i}
+          className={cn(
+            "size-1.5 rounded-full transition-all duration-300",
+            i === activeIndex ? "bg-accent w-4" : "bg-border-strong"
+          )}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function OverviewPage() {
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const [activeDot, setActiveDot] = React.useState(0)
+
+  React.useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    function handleScroll() {
+      const scrollLeft = el!.scrollLeft
+      const cardWidth = 220 + 12 // min-w + gap
+      const idx = Math.round(scrollLeft / cardWidth)
+      setActiveDot(Math.min(METRICS.length - 1, Math.max(0, idx)))
+    }
+
+    el.addEventListener("scroll", handleScroll, { passive: true })
+    return () => el.removeEventListener("scroll", handleScroll)
+  }, [])
+
   return (
     <motion.div
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="grid grid-cols-1 gap-4 md:grid-cols-12"
+      className="flex flex-col gap-4"
     >
-      {/* Row 1: Map (6) + Risk Score (3) + Fleet Status (3) */}
-      <motion.div variants={item} className="col-span-full lg:col-span-6">
-        <ThermalAlertMap />
-      </motion.div>
-
-      <motion.div variants={item} className="col-span-full sm:col-span-6 lg:col-span-3">
-        <ActiveRiskScore score={78} />
-      </motion.div>
-
-      <motion.div variants={item} className="col-span-full sm:col-span-6 lg:col-span-3">
-        <FleetStatusCard />
-      </motion.div>
-
-      {/* Row 2: 4 Metric Cards (3 each) */}
-      {METRICS.map((metric) => (
-        <motion.div
-          key={metric.label}
-          variants={item}
-          className="col-span-full sm:col-span-6 lg:col-span-3"
-        >
-          <MetricCard
-            label={metric.label}
-            value={metric.value}
-            unit={metric.unit}
-            delta={metric.delta}
-            deltaType={metric.deltaType}
-            icon={metric.icon}
-            color={metric.color}
-          />
+      {/* ═══ Row 1: Map + Risk + Fleet ═══ */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-6 lg:grid-cols-12">
+        <motion.div variants={item} className="sm:col-span-6 lg:col-span-7">
+          <ThermalAlertMap />
         </motion.div>
-      ))}
 
-      {/* Row 3: Live Action Feed (full width) */}
-      <motion.div variants={item} className="col-span-full">
+        <motion.div variants={item} className="sm:col-span-3 lg:col-span-3">
+          <ActiveRiskScore score={78} />
+        </motion.div>
+
+        <motion.div variants={item} className="sm:col-span-3 lg:col-span-2">
+          <FleetStatusCard />
+        </motion.div>
+      </div>
+
+      {/* ═══ Row 2: Metric Cards ═══ */}
+      {/* Mobile: horizontal scroll strip with edge-to-edge bleed */}
+      <div className="sm:hidden">
+        <div
+          ref={scrollRef}
+          className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory -mx-4 px-4 scrollbar-hide"
+        >
+          {METRICS.map((metric) => (
+            <div key={metric.label} className="min-w-[180px] snap-start flex-shrink-0">
+              <MetricCard
+                label={metric.label}
+                value={metric.value}
+                unit={metric.unit}
+                delta={metric.delta}
+                deltaType={metric.deltaType}
+                icon={metric.icon}
+                color={metric.color}
+              />
+            </div>
+          ))}
+        </div>
+        <ScrollIndicatorDots count={METRICS.length} activeIndex={activeDot} />
+      </div>
+
+      {/* Tablet+: responsive grid */}
+      <div className="hidden grid-cols-2 gap-4 sm:grid lg:grid-cols-4">
+        {METRICS.map((metric) => (
+          <motion.div key={metric.label} variants={item}>
+            <MetricCard
+              label={metric.label}
+              value={metric.value}
+              unit={metric.unit}
+              delta={metric.delta}
+              deltaType={metric.deltaType}
+              icon={metric.icon}
+              color={metric.color}
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ═══ Row 3: Live Feed ═══ */}
+      <motion.div variants={item}>
         <LiveActionFeed />
       </motion.div>
     </motion.div>

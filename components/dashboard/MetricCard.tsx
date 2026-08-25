@@ -12,6 +12,7 @@ interface MetricCardProps {
   deltaType?: "success" | "danger" | "neutral"
   icon: LucideIcon
   color?: string
+  className?: string
 }
 
 export function MetricCard({
@@ -22,13 +23,17 @@ export function MetricCard({
   deltaType = "neutral",
   icon: Icon,
   color = "text-primary",
+  className,
 }: MetricCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.24 }}
-      className="col-span-full flex flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md lg:col-span-3"
+      className={cn(
+        "flex flex-col justify-between gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md",
+        className
+      )}
     >
       <div className="flex items-start justify-between">
         <p className="text-xs text-muted-foreground">{label}</p>
@@ -38,7 +43,7 @@ export function MetricCard({
       </div>
 
       <div className="flex items-baseline gap-1.5">
-        <span className="font-mono text-3xl font-black tabular-nums">
+        <span className="font-mono text-2xl font-black tabular-nums sm:text-3xl">
           {value}
         </span>
         {unit && (

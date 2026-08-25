@@ -36,9 +36,9 @@ export function OnboardingShell({
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background">
       {/* Animated gradient mesh background */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-950/40 via-zinc-950 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-background" />
         <motion.div
-          className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-orange-500/[0.04] blur-[120px]"
+          className="absolute -left-1/4 -top-1/4 h-[600px] w-[600px] rounded-full bg-primary/[0.04] blur-[120px]"
           animate={{
             x: [0, 40, -20, 0],
             y: [0, -30, 20, 0],
@@ -46,7 +46,7 @@ export function OnboardingShell({
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-1/4 -right-1/4 h-[500px] w-[500px] rounded-full bg-orange-600/[0.03] blur-[100px]"
+          className="absolute -bottom-1/4 -right-1/4 h-[500px] w-[500px] rounded-full bg-primary/[0.03] blur-[100px]"
           animate={{
             x: [0, -30, 20, 0],
             y: [0, 20, -40, 0],

@@ -67,7 +67,7 @@ export function IncidentPreventionLine() {
   const prevented = INCIDENTS_WITHOUT.reduce((a, b) => a + b, 0) - INCIDENTS_WITH.reduce((a, b) => a + b, 0)
 
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="font-mono text-sm font-semibold">Incident Prevention — With vs Without EchoHeat</h3>
         <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[11px] font-medium text-success">
@@ -80,7 +80,7 @@ export function IncidentPreventionLine() {
       <svg
         ref={ref}
         viewBox={`0 0 ${W} ${H}`}
-        className="w-full min-w-[500px]"
+        className="w-full min-w-[400px] sm:min-w-[500px]"
         aria-label="Incident prevention line chart"
         role="img"
       >

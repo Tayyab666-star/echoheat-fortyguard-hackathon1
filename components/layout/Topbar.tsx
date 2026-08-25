@@ -50,7 +50,7 @@ export function Topbar({
   return (
     <header
       data-slot="topbar"
-      className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-white/10 bg-zinc-950/80 px-4 backdrop-blur-md sm:gap-4 sm:px-6"
+      className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-surface-1/80 px-4 backdrop-blur-md sm:gap-4 sm:px-6"
     >
       {/* Spacer for mobile hamburger */}
       <div className="w-8 md:hidden" />
@@ -71,7 +71,7 @@ export function Topbar({
       </div>
 
       {/* Center: Live Status Pill — hidden on very small screens */}
-      <div className="mx-auto hidden items-center gap-2 rounded-full border border-white/10 bg-surface-2 px-3 py-1 sm:flex">
+      <div className="mx-auto hidden items-center gap-2 rounded-full border border-border bg-surface-2 px-3 py-1 sm:flex">
         <span className="relative flex size-2 shrink-0">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
           <span className="relative inline-flex size-2 rounded-full bg-primary" />
@@ -105,7 +105,7 @@ export function Topbar({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="relative flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+              className="relative flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-surface-hover hover:text-foreground"
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ""}`}
             >
               <Bell className="size-4" />

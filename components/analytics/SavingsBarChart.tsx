@@ -81,7 +81,7 @@ export function SavingsBarChart() {
   const totalSavings = AVOIDED_LOSS.reduce((a, b) => a + b, 0) - ECHOHEAT_COST.reduce((a, b) => a + b, 0)
 
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="font-mono text-sm font-semibold">Monthly Savings — Avoided Loss vs EchoHeat Cost</h3>
         <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[11px] font-medium text-success">
@@ -94,10 +94,11 @@ export function SavingsBarChart() {
       <svg
         ref={ref}
         viewBox={`0 0 ${W} ${H}`}
-        className="w-full min-w-[500px]"
+        className="w-full min-w-[400px] sm:min-w-[500px]"
         aria-label="Monthly savings bar chart"
         role="img"
         onMouseLeave={() => setTooltip(null)}
+        onTouchEnd={() => setTimeout(() => setTooltip(null), 2000)}
       >
         <defs>
           <linearGradient id="bar-avoided" x1="0" y1="0" x2="0" y2="1">
@@ -206,7 +207,7 @@ export function SavingsBarChart() {
       {/* Tooltip */}
       {tooltip && (
         <div
-          className="pointer-events-none absolute z-10 rounded-lg border border-white/10 bg-surface-2 px-3 py-2 shadow-lg"
+          className="pointer-events-none absolute z-10 rounded-lg border border-border bg-surface-2 px-3 py-2 shadow-lg"
           style={{ left: tooltip.x, top: tooltip.y, transform: "translate(-50%, -100%)" }}
         >
           <p className="text-[10px] font-bold text-foreground">{tooltip.month}</p>

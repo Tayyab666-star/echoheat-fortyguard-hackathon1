@@ -18,11 +18,11 @@ export function QuickActionBar() {
   }, [preCoolState])
 
   return (
-    <div className="sticky bottom-0 flex flex-col gap-2 border-t border-white/10 bg-background/80 p-4 backdrop-blur-md">
+    <div className="sticky bottom-0 flex flex-col gap-2 border-t border-border bg-background/80 p-4 backdrop-blur-md">
       <Button
         onClick={handleBulkPreCool}
         disabled={preCoolState !== "idle"}
-        className="w-full gap-2 bg-gradient-to-r from-primary to-orange-600 text-primary-foreground shadow-lg shadow-primary/20 hover:from-primary/90 hover:to-orange-600/90"
+        className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 hover:from-primary/90 hover:to-primary/70"
       >
         <AnimatePresence mode="wait">
           {preCoolState === "idle" && (

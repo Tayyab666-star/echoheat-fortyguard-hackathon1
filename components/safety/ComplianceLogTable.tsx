@@ -43,26 +43,68 @@ const row = {
   show: { opacity: 1, x: 0 },
 }
 
+/* ═══ Mobile Log Card ═══ */
+function LogCard({ log }: { log: LogEntry }) {
+  return (
+    <div className="flex items-start gap-3 rounded-lg border border-border/50 bg-surface-2/30 p-3">
+      <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 font-mono text-xs font-bold text-primary">
+        {log.timestamp}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-medium leading-tight">{log.action}</p>
+        <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
+          <span className="font-mono font-bold text-foreground">{log.wbgt}</span>
+          <span>·</span>
+          <span>{log.loggedTo}</span>
+        </div>
+      </div>
+      <Badge
+        variant="outline"
+        className={cn(
+          "shrink-0 border px-1.5 py-0 text-[8px] font-semibold uppercase",
+          log.auditStatus === "defensible"
+            ? "border-success/30 bg-success/10 text-success"
+            : "border-warning/30 bg-warning/10 text-warning"
+        )}
+      >
+        {log.auditStatus === "defensible" ? "Defensible" : "Pending"}
+      </Badge>
+    </div>
+  )
+}
+
+/* ═══ Main Component ═══ */
 export function ComplianceLogTable() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface-1/80 p-4 backdrop-blur-md sm:p-6">
       <div className="flex items-center justify-between">
         <h3 className="font-mono text-sm font-semibold">OSHA Compliance Log</h3>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-muted-foreground">
           <Download className="size-3.5" />
-          Download PDF Audit Trail
+          <span className="hidden sm:inline">Download PDF Audit Trail</span>
+          <span className="sm:hidden">Export</span>
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-white/10">
+      {/* Mobile: card list */}
+      <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-2 sm:hidden">
+        {LOGS.map((log) => (
+          <motion.div key={log.id} variants={row}>
+            <LogCard log={log} />
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Tablet+: table */}
+      <div className="hidden overflow-x-auto rounded-xl border border-border sm:block">
         <Table>
           <TableHeader>
-            <TableRow className="border-white/10 hover:bg-transparent">
-              <TableHead>Timestamp</TableHead>
-              <TableHead>WBGT at Time</TableHead>
-              <TableHead>Action Taken</TableHead>
-              <TableHead>Logged To</TableHead>
-              <TableHead>Audit Status</TableHead>
+            <TableRow className="border-border hover:bg-transparent">
+              <TableHead>Time</TableHead>
+              <TableHead>WBGT</TableHead>
+              <TableHead className="hidden md:table-cell">Action Taken</TableHead>
+              <TableHead className="hidden lg:table-cell">Logged To</TableHead>
+              <TableHead>Audit</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -71,12 +113,12 @@ export function ComplianceLogTable() {
                 <motion.tr
                   key={log.id}
                   variants={row}
-                  className="border-white/5 hover:bg-white/5 transition-colors"
+                  className="border-border/50 hover:bg-surface-2/30 transition-colors"
                 >
                   <TableCell className="font-mono text-xs tabular-nums">{log.timestamp}</TableCell>
                   <TableCell className="font-mono text-xs font-bold tabular-nums">{log.wbgt}</TableCell>
-                  <TableCell className="text-xs">{log.action}</TableCell>
-                  <TableCell className="text-xs text-muted-foreground">{log.loggedTo}</TableCell>
+                  <TableCell className="text-xs hidden md:table-cell">{log.action}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground hidden lg:table-cell">{log.loggedTo}</TableCell>
                   <TableCell>
                     <Badge
                       variant="outline"
@@ -87,11 +129,7 @@ export function ComplianceLogTable() {
                           : "border-warning/30 bg-warning/10 text-warning"
                       )}
                     >
-                      {log.auditStatus === "defensible" ? (
-                        <>Legally Defensible ✓</>
-                      ) : (
-                        <>Pending ■</>
-                      )}
+                      {log.auditStatus === "defensible" ? "Defensible" : "Pending"}
                     </Badge>
                   </TableCell>
                 </motion.tr>

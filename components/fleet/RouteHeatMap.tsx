@@ -10,7 +10,7 @@ const FLOATING_STATS = [
 
 export function RouteHeatMap() {
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-surface-2/60">
+    <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-border bg-surface-2/60">
       {/* Map background */}
       <div className="absolute inset-0 bg-grid opacity-20" />
       <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">
@@ -43,7 +43,7 @@ export function RouteHeatMap() {
           return (
             <div
               key={stat.label}
-              className="flex items-center gap-2 rounded-lg border border-white/10 bg-background/70 px-2.5 py-1.5 text-[11px] backdrop-blur-md"
+              className="flex items-center gap-2 rounded-lg border border-border bg-background/70 px-2.5 py-1.5 text-[11px] backdrop-blur-md"
             >
               <Icon className={`size-3 ${stat.color}`} />
               <span className="text-muted-foreground">{stat.label}</span>
@@ -56,7 +56,7 @@ export function RouteHeatMap() {
       </div>
 
       {/* Bottom route metadata bar */}
-      <div className="absolute bottom-0 inset-x-0 flex items-center gap-3 border-t border-white/10 bg-background/70 px-4 py-2.5 text-xs backdrop-blur-md">
+      <div className="absolute bottom-0 inset-x-0 flex items-center gap-3 border-t border-border bg-background/70 px-4 py-2.5 text-xs backdrop-blur-md">
         <span className="rounded-md bg-primary/15 px-2 py-0.5 font-mono text-xs font-bold text-primary">
           #KHI-07
         </span>

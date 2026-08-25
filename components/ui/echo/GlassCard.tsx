@@ -1,23 +1,21 @@
+"use client"
+
+import * as React from "react"
 import { cn } from "@/lib/utils"
 
-interface GlassCardProps extends React.ComponentProps<"div"> {
-  padding?: "none" | "sm" | "md" | "lg"
+interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode
 }
 
-const PADDING_MAP = {
-  none: "p-0",
-  sm: "p-4",
-  md: "p-6",
-  lg: "p-8",
-}
-
-export function GlassCard({ children, className, padding = "md", ...props }: GlassCardProps) {
-  return (
+const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
+  ({ className, children, ...props }, ref) => (
     <div
-      data-slot="glass-card"
+      ref={ref}
       className={cn(
-        "rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl",
-        PADDING_MAP[padding],
+        "rounded-2xl border border-border bg-surface-1",
+        "shadow-[var(--shadow-md)] backdrop-blur-sm",
+        "transition-all duration-200",
+        "hover:border-border-strong hover:shadow-[var(--shadow-lg)]",
         className
       )}
       {...props}
@@ -25,4 +23,7 @@ export function GlassCard({ children, className, padding = "md", ...props }: Gla
       {children}
     </div>
   )
-}
+)
+GlassCard.displayName = "GlassCard"
+
+export { GlassCard }

@@ -75,7 +75,7 @@ export function WelcomeStep() {
           <motion.div
             key={feat.label}
             variants={fadeUp}
-            className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 px-5 py-4"
+            className="flex items-center gap-4 rounded-xl border border-border bg-surface-hover px-5 py-4"
           >
             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
               <feat.icon className="size-5" />

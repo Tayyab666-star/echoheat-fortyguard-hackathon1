@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Snowflake, Route } from "lucide-react"
+import { Snowflake, Route, ChevronRight } from "lucide-react"
 
 type VehicleStatus = "PRE-COOLING" | "AT RISK" | "COMPLIANT" | "REROUTING"
 
@@ -75,7 +75,7 @@ function ActionButton({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => v
         {state === "idle" && (
           <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
             <Snowflake className="size-3" />
-            Trigger Pre-Cool
+            Pre-Cool
           </motion.span>
         )}
         {state === "loading" && (
@@ -87,7 +87,7 @@ function ActionButton({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => v
         {state === "done" && (
           <motion.span key="done" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-1.5">
             <svg className="size-3.5" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            Executed
+            Done
           </motion.span>
         )}
       </AnimatePresence>
@@ -95,37 +95,101 @@ function ActionButton({ vehicle, onClick }: { vehicle: Vehicle; onClick: () => v
   )
 }
 
-interface AssetTableProps {
-  onSelectVehicle?: (vehicle: Vehicle) => void
+/* ═══════════════════════════════════════════════════════════
+   MOBILE CARD — visible < sm, hidden sm+
+   ═══════════════════════════════════════════════════════════ */
+
+function VehicleCard({
+  vehicle,
+  onSelect,
+}: {
+  vehicle: Vehicle
+  onSelect: () => void
+}) {
+  const cfg = STATUS_CONFIG[vehicle.status]
+  return (
+    <div
+      className="flex flex-col gap-2.5 rounded-xl border border-border bg-surface-1/80 p-3 backdrop-blur-md"
+      onClick={onSelect}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm font-bold">{vehicle.id}</span>
+          <Badge
+            variant="outline"
+            className={cn("border gap-1 px-1.5 py-0 text-[9px] font-semibold uppercase", cfg.className)}
+          >
+            {cfg.pulse && (
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75" />
+                <span className="relative inline-flex size-1.5 rounded-full bg-current" />
+              </span>
+            )}
+            {vehicle.status}
+          </Badge>
+        </div>
+        <ChevronRight className="size-4 text-muted-foreground" />
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        <div>
+          <p className="text-muted-foreground">Route</p>
+          <p className="font-mono font-medium">{vehicle.route}</p>
+        </div>
+        <div>
+          <p className="text-muted-foreground">Cargo</p>
+          <p className="font-medium">{vehicle.cargoType}</p>
+        </div>
+        <div>
+          <p className="text-muted-foreground">Temp</p>
+          <p className="font-mono font-medium tabular-nums">{vehicle.internalTemp}</p>
+        </div>
+      </div>
+
+      <div onClick={(e) => e.stopPropagation()}>
+        <ActionButton vehicle={vehicle} onClick={onSelect} />
+      </div>
+    </div>
+  )
 }
 
-export function AssetTable({ onSelectVehicle }: AssetTableProps) {
+/* ═══════════════════════════════════════════════════════════
+   TABLE VIEW — visible sm+, hidden < sm
+   ═══════════════════════════════════════════════════════════ */
+
+function VehicleTable({
+  vehicles,
+  onSelectVehicle,
+}: {
+  vehicles: Vehicle[]
+  onSelectVehicle?: (v: Vehicle) => void
+}) {
   return (
-    <div className="rounded-xl border border-white/10 bg-surface-1/80 backdrop-blur-md">
+    <div className="overflow-x-auto rounded-xl border border-border">
       <Table>
         <TableHeader>
-          <TableRow className="border-white/10 hover:bg-transparent">
-            <TableHead>Vehicle ID</TableHead>
-            <TableHead>Route</TableHead>
-            <TableHead>Cargo</TableHead>
-            <TableHead>Internal Temp</TableHead>
+          <TableRow className="border-border hover:bg-transparent">
+            <TableHead>Vehicle</TableHead>
+            <TableHead className="hidden md:table-cell">Route</TableHead>
+            <TableHead className="hidden sm:table-cell">Cargo</TableHead>
+            <TableHead>Temp</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {VEHICLES.map((v) => {
+          {vehicles.map((v) => {
             const cfg = STATUS_CONFIG[v.status]
             return (
               <TableRow
                 key={v.id}
-                className="cursor-pointer border-white/5"
+                className="cursor-pointer border-border/50"
                 onClick={() => onSelectVehicle?.(v)}
               >
-                <TableCell className="font-mono font-bold">{v.id}</TableCell>
-                <TableCell className="font-mono text-muted-foreground">{v.route}</TableCell>
-                <TableCell>{v.cargoType}</TableCell>
-                <TableCell className="font-mono tabular-nums">{v.internalTemp}</TableCell>
+                <TableCell className="font-mono font-bold text-sm">{v.id}</TableCell>
+                <TableCell className="hidden md:table-cell font-mono text-muted-foreground text-sm">{v.route}</TableCell>
+                <TableCell className="hidden sm:table-cell text-sm">{v.cargoType}</TableCell>
+                <TableCell className="font-mono tabular-nums text-sm">{v.internalTemp}</TableCell>
                 <TableCell>
                   <Badge
                     variant="outline"
@@ -133,7 +197,7 @@ export function AssetTable({ onSelectVehicle }: AssetTableProps) {
                   >
                     {cfg.pulse && (
                       <span className="relative flex size-1.5">
-                        <span className={cn("absolute inline-flex h-full w-full animate-ping rounded-full opacity-75", v.status === "AT RISK" || v.status === "REROUTING" ? "bg-current" : "bg-current")} />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-current opacity-75" />
                         <span className="relative inline-flex size-1.5 rounded-full bg-current" />
                       </span>
                     )}
@@ -148,6 +212,40 @@ export function AssetTable({ onSelectVehicle }: AssetTableProps) {
           })}
         </TableBody>
       </Table>
+    </div>
+  )
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MAIN ASSET TABLE COMPONENT
+   ═══════════════════════════════════════════════════════════ */
+
+interface AssetTableProps {
+  onSelectVehicle?: (vehicle: Vehicle) => void
+}
+
+export function AssetTable({ onSelectVehicle }: AssetTableProps) {
+  return (
+    <div className="rounded-xl border border-border bg-surface-1/80 backdrop-blur-md">
+      <div className="p-3 sm:p-4">
+        <h3 className="font-mono text-sm font-semibold mb-3">Fleet Assets</h3>
+      </div>
+
+      {/* Mobile: card list */}
+      <div className="flex flex-col gap-2 p-3 sm:hidden">
+        {VEHICLES.map((v) => (
+          <VehicleCard
+            key={v.id}
+            vehicle={v}
+            onSelect={() => onSelectVehicle?.(v)}
+          />
+        ))}
+      </div>
+
+      {/* Tablet+: table */}
+      <div className="hidden px-3 pb-3 sm:block">
+        <VehicleTable vehicles={VEHICLES} onSelectVehicle={onSelectVehicle} />
+      </div>
     </div>
   )
 }

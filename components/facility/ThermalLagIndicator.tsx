@@ -21,7 +21,7 @@ export function ThermalLagIndicator({
   const fillPct = Math.min(100, (totalMinutes / maxMinutes) * 100)
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="flex items-center gap-2">
         <span className="flex size-7 items-center justify-center rounded-md bg-primary/15 text-primary">
           <Timer className="size-3.5" />
@@ -49,7 +49,7 @@ export function ThermalLagIndicator({
           {[1, 2, 3].map((h) => (
             <div
               key={h}
-              className="absolute top-0 bottom-0 w-px bg-white/10"
+              className="absolute top-0 bottom-0 w-px bg-surface-divider"
               style={{ left: `${(h * 60 / maxMinutes) * 100}%` }}
             />
           ))}
@@ -66,7 +66,7 @@ export function ThermalLagIndicator({
       </div>
 
       {/* Formula note */}
-      <div className="rounded-lg border border-white/5 bg-surface-2/40 px-3 py-2">
+      <div className="rounded-lg border border-border/50 bg-surface-2/40 px-3 py-2">
         <p className="font-mono text-[10px] text-muted-foreground">
           U-value: {uValue} &middot; Solar Load: {solarLoad} W/m\u00B2 &middot; Mass: 420 m\u00B3 concrete
         </p>

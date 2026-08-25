@@ -36,7 +36,7 @@ const cardVariant = {
 
 export function AlertDispatchPanel() {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
+    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <h3 className="font-mono text-sm font-semibold">Alert Dispatch Log</h3>
 
       <motion.div variants={stagger} initial="hidden" animate="show" className="flex flex-col gap-2">
@@ -45,8 +45,8 @@ export function AlertDispatchPanel() {
             key={alert.id}
             variants={cardVariant}
             className={cn(
-              "flex items-start gap-3 rounded-xl border bg-surface-2/40 p-3 transition-colors hover:bg-white/5",
-              alert.confirmed ? "border-white/5" : "border-warning/20"
+              "flex items-start gap-3 rounded-xl border bg-surface-2/40 p-3 transition-colors hover:bg-surface-hover",
+              alert.confirmed ? "border-border/50" : "border-warning/20"
             )}
           >
             <span className={cn(
