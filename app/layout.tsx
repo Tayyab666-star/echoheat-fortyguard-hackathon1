@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 
 import { GeistSans, GeistMono } from "@/lib/fonts"
 import { Providers } from "@/components/Providers"
+import { InitialLoadingScreen } from "@/components/layout/InitialLoadingScreen"
 
 import "./globals.css"
 
@@ -50,6 +51,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
+        <InitialLoadingScreen />
         <Providers>{children}</Providers>
       </body>
     </html>
