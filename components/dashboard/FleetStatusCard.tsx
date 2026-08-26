@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { CardTitle, Caption, DataLabel } from "@/components/ui/echo/Text"
 
 const METRICS = [
   {
@@ -71,7 +72,7 @@ export function FleetStatusCard() {
       transition={{ duration: 0.4, delay: 0.16 }}
       className="col-span-full flex flex-col gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md lg:col-span-3"
     >
-      <h3 className="font-mono text-sm font-semibold">Fleet Status</h3>
+      <CardTitle>Fleet Status</CardTitle>
 
       <div className="flex flex-col gap-3">
         {METRICS.map((metric) => (
@@ -80,11 +81,11 @@ export function FleetStatusCard() {
             className="flex items-center justify-between gap-3"
           >
             <div className="min-w-0 flex-1">
-              <p className="truncate text-xs text-muted-foreground">
+              <Caption className="truncate">
                 {metric.label}
-              </p>
+              </Caption>
               <div className="mt-0.5 flex items-center gap-2">
-                <span className="font-mono text-lg font-bold tabular-nums">
+                <span className="font-mono text-lg font-bold tabular-nums text-text-primary">
                   {metric.value}
                 </span>
                 {metric.badge && (

@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Shield } from "lucide-react"
+import { useTheme } from "@/lib/theme"
+import { CardTitle, DataLabel } from "@/components/ui/echo/Text"
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -50,6 +52,7 @@ function areaPath(data: number[]): string {
 export function IncidentPreventionLine() {
   const ref = useRef<SVGSVGElement>(null)
   const [visible, setVisible] = useState(false)
+  const { theme } = useTheme()
 
   useEffect(() => {
     const el = ref.current
@@ -69,7 +72,7 @@ export function IncidentPreventionLine() {
   return (
     <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-mono text-sm font-semibold">Incident Prevention — With vs Without EchoHeat</h3>
+        <CardTitle>Incident Prevention — With vs Without EchoHeat</CardTitle>
         <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[11px] font-medium text-success">
           <Shield className="size-3" />
           {prevented} incidents prevented
@@ -142,7 +145,7 @@ export function IncidentPreventionLine() {
         <motion.path
           d={smoothPath(INCIDENTS_WITHOUT)}
           fill="none"
-          stroke="rgb(161, 161, 170)"
+          stroke="rgb(var(--text-muted))"
           strokeWidth="1.5"
           strokeDasharray="6 4"
           initial={{ pathLength: 0 }}
@@ -180,7 +183,7 @@ export function IncidentPreventionLine() {
 
         {/* Legend */}
         <g transform={`translate(${W - 220}, ${PAD.top})`}>
-          <line x1="0" y1="6" x2="16" y2="6" stroke="rgb(161, 161, 170)" strokeWidth="1.5" strokeDasharray="6 4" />
+          <line x1="0" y1="6" x2="16" y2="6" stroke="rgb(var(--text-muted))" strokeWidth="1.5" strokeDasharray="6 4" />
           <text x="20" y="9" className="fill-muted-foreground" fontSize="9">Without EchoHeat</text>
           <line x1="110" y1="6" x2="126" y2="6" stroke="rgb(var(--success))" strokeWidth="2" />
           <text x="130" y="9" className="fill-muted-foreground" fontSize="9">With EchoHeat</text>

@@ -251,8 +251,8 @@ export function AppearanceSettings() {
               <input
                 type="checkbox"
                 className="peer sr-only"
-                checked={a11y.reduceMotion}
-                onChange={(e) => setA11y({ reduceMotion: e.target.checked })}
+                checked={a11y.reducedMotion}
+                onChange={(e) => setA11y({ reducedMotion: e.target.checked })}
               />
               <div className="h-5 w-9 rounded-full bg-surface-3 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-border after:bg-background after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-primary-foreground" />
             </label>

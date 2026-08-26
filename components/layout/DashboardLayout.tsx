@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav"
 import { MobileHeader } from "@/components/layout/MobileHeader"
 import { MobileDrawer } from "@/components/layout/MobileDrawer"
+import { PageTransition } from "@/components/layout/PageTransition"
+import { Caption, DataLabel } from "@/components/ui/echo/Text"
 import {
   LayoutDashboard,
   Truck,
@@ -112,8 +114,8 @@ function DesktopSidebar({
                     )}
                   </AnimatePresence>
                   {!collapsed && "badge" in item && item.badge != null && (
-                    <span className="ml-auto flex size-5 shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
-                      {item.badge}
+                    <span className="ml-auto flex size-5 shrink-0 items-center justify-center rounded-full bg-accent font-bold text-accent-foreground">
+                      <DataLabel className="!text-[10px] !tracking-normal !uppercase-none">{item.badge}</DataLabel>
                     </span>
                   )}
                 </Link>
@@ -153,8 +155,8 @@ function DesktopSidebar({
                 transition={{ duration: 0.15 }}
                 className="min-w-0 overflow-hidden"
               >
-                <p className="truncate text-xs font-medium leading-none">Operator</p>
-                <p className="mt-1 truncate text-[10px] text-text-muted">Powered by FortyGuard API</p>
+                <Caption className="font-medium">Operator</Caption>
+                <DataLabel className="mt-1">Powered by FortyGuard API</DataLabel>
               </motion.div>
             )}
           </AnimatePresence>
@@ -171,7 +173,9 @@ function DesktopSidebar({
 function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
   return (
     <header className="sticky top-0 z-30 hidden h-14 shrink-0 items-center gap-3 border-b border-border bg-surface-1/80 px-6 backdrop-blur-md lg:flex">
-      <h1 className="truncate text-sm font-semibold">{pageTitle ?? "Overview"}</h1>
+      <span className="truncate font-semibold text-text-primary" style={{ fontSize: "var(--text-heading3)" }}>
+        {pageTitle ?? "Overview"}
+      </span>
 
       <div className="flex-1" />
 
@@ -181,7 +185,7 @@ function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
             <span className="relative inline-flex size-2 rounded-full bg-accent" />
           </span>
-          <span className="whitespace-nowrap text-xs font-medium">LIVE</span>
+          <span className="whitespace-nowrap font-medium text-text-primary" style={{ fontSize: "var(--text-xs)" }}>LIVE</span>
         </div>
 
         <button
@@ -189,8 +193,8 @@ function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
           aria-label="Notifications (3 unread)"
         >
           <BellRing className="size-4" />
-          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-accent text-[7px] font-bold text-accent-foreground">
-            3
+          <span className="absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full bg-accent font-bold text-accent-foreground">
+            <DataLabel className="!text-[7px] !tracking-normal">3</DataLabel>
           </span>
         </button>
 
@@ -247,8 +251,8 @@ export function DashboardLayout({
         {/* Desktop top bar */}
         <DesktopTopBar pageTitle={pageTitle} />
 
-        <main className="flex-1 p-3 sm:p-4 lg:p-6">
-          {children}
+        <main className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
     </div>

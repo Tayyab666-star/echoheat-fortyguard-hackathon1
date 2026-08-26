@@ -3,6 +3,7 @@
 import { type LucideIcon } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { DataLabel, MetricValue, Caption } from "@/components/ui/echo/Text"
 
 interface MetricCardProps {
   label: string
@@ -36,18 +37,16 @@ export function MetricCard({
       )}
     >
       <div className="flex items-start justify-between">
-        <p className="text-xs text-muted-foreground">{label}</p>
+        <DataLabel>{label}</DataLabel>
         <span className={cn("rounded-lg bg-surface-2 p-2", color)}>
           <Icon className="size-4" />
         </span>
       </div>
 
       <div className="flex items-baseline gap-1.5">
-        <span className="font-mono text-2xl font-black tabular-nums sm:text-3xl">
-          {value}
-        </span>
+        <MetricValue className="!text-2xl sm:!text-3xl">{value}</MetricValue>
         {unit && (
-          <span className="text-sm text-muted-foreground">{unit}</span>
+          <Caption>{unit}</Caption>
         )}
       </div>
 

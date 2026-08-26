@@ -68,7 +68,7 @@ export default function AnalyticsPage() {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
     >
       {/* Header: Filters */}
       <motion.div variants={item} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

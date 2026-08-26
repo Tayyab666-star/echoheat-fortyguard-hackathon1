@@ -2,6 +2,7 @@
 
 import { motion, useMotionValue, useTransform, animate } from "framer-motion"
 import { useEffect } from "react"
+import { CardTitle, MetricValue, Caption, DataLabel } from "@/components/ui/echo/Text"
 
 interface ActiveRiskScoreProps {
   score?: number
@@ -31,7 +32,7 @@ export function ActiveRiskScore({ score = 78 }: ActiveRiskScoreProps) {
       transition={{ duration: 0.4, delay: 0.08 }}
       className="col-span-full flex flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md lg:col-span-3"
     >
-      <h3 className="font-mono text-sm font-semibold">Active Risk Score</h3>
+      <CardTitle>Active Risk Score</CardTitle>
 
       <div className="relative size-[180px]">
         <svg
@@ -75,10 +76,13 @@ export function ActiveRiskScore({ score = 78 }: ActiveRiskScoreProps) {
 
         {/* Center score */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <motion.span className="font-mono text-5xl font-black tabular-nums">
+          <motion.span
+            className="font-black font-mono text-text-primary tabular-nums"
+            style={{ fontSize: "var(--text-display)" }}
+          >
             {displayScore}
           </motion.span>
-          <span className="text-[10px] text-muted-foreground">/ 100</span>
+          <Caption>/ 100</Caption>
         </div>
       </div>
 
@@ -86,9 +90,9 @@ export function ActiveRiskScore({ score = 78 }: ActiveRiskScoreProps) {
         <span className="rounded-md bg-danger/15 px-2 py-0.5 text-xs font-medium text-danger">
           High Risk
         </span>
-        <span className="text-[11px] text-muted-foreground">
+        <Caption>
           4 sites above WBGT threshold
-        </span>
+        </Caption>
       </div>
     </motion.div>
   )

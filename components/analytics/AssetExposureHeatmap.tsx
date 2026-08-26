@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { useHeatmapColors } from "@/lib/theme"
+import { CardTitle, DataLabel } from "@/components/ui/echo/Text"
 
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 const HOURS = Array.from({ length: 24 }, (_, i) => i)
@@ -34,26 +36,12 @@ function generateHeatData(): number[][] {
 
 const HEAT_DATA = generateHeatData()
 
-function getHeatColor(wbgt: number): string {
-  if (wbgt < 28) return "bg-success/30"
-  if (wbgt < 30) return "bg-success/50"
-  if (wbgt < 32) return "bg-warning/40"
-  if (wbgt < 34) return "bg-warning/60"
-  if (wbgt < 36) return "bg-primary/50"
-  if (wbgt < 38) return "bg-primary/70"
-  if (wbgt < 40) return "bg-danger/50"
-  return "bg-danger/70"
-}
-
-function getHeatColorHex(wbgt: number): string {
-  if (wbgt < 28) return "rgb(34,197,94)"
-  if (wbgt < 30) return "rgb(34,197,94)"
-  if (wbgt < 32) return "rgb(234,179,8)"
-  if (wbgt < 34) return "rgb(234,179,8)"
-  if (wbgt < 36) return "rgb(249,115,22)"
-  if (wbgt < 38) return "rgb(249,115,22)"
-  if (wbgt < 40) return "rgb(239,68,68)"
-  return "rgb(239,68,68)"
+function getRiskLevel(wbgt: number): "safe" | "moderate" | "high" | "critical" {
+  if (wbgt < 28) return "safe"
+  if (wbgt < 32) return "safe"
+  if (wbgt < 36) return "moderate"
+  if (wbgt < 38) return "high"
+  return "critical"
 }
 
 const ASSET_COUNTS: Record<string, number> = {
@@ -81,6 +69,7 @@ export function AssetExposureHeatmap() {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const colors = useHeatmapColors()
 
   useEffect(() => {
     const el = ref.current
@@ -103,7 +92,7 @@ export function AssetExposureHeatmap() {
 
   return (
     <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
-      <h3 className="font-mono text-sm font-semibold mb-4">Asset Exposure Heatmap — WBGT by Hour</h3>
+      <CardTitle className="mb-4">Asset Exposure Heatmap — WBGT by Hour</CardTitle>
 
       <div ref={ref} className="overflow-x-auto">
         <svg
@@ -144,6 +133,7 @@ export function AssetExposureHeatmap() {
                 const x = PAD_LEFT + hourIdx * (CELL_W + GAP)
                 const y = PAD_TOP + dayIdx * (CELL_H + GAP)
                 const delay = (dayIdx * 24 + hourIdx) * 0.003
+                const risk = getRiskLevel(wbgt)
 
                 return (
                   <motion.rect
@@ -153,7 +143,8 @@ export function AssetExposureHeatmap() {
                     width={CELL_W}
                     height={CELL_H}
                     rx="3"
-                    className={cn("cursor-pointer transition-opacity", getHeatColor(wbgt))}
+                    fill={colors[risk]}
+                    className="cursor-pointer"
                     initial={{ opacity: 0 }}
                     animate={visible ? { opacity: 1 } : {}}
                     transition={{ duration: 0.3, delay }}
@@ -181,13 +172,13 @@ export function AssetExposureHeatmap() {
           {/* Color scale legend */}
           <g transform={`translate(${PAD_LEFT}, ${H - 18})`}>
             {[
-              { color: "rgb(34,197,94)", label: "<28°C" },
-              { color: "rgb(234,179,8)", label: "32°C" },
-              { color: "rgb(249,115,22)", label: "36°C" },
-              { color: "rgb(239,68,68)", label: "40°C+" },
+              { color: colors.safeHex, label: "<28\u00B0C" },
+              { color: colors.moderateHex, label: "32\u00B0C" },
+              { color: colors.highHex, label: "36\u00B0C" },
+              { color: colors.criticalHex, label: "40\u00B0C+" },
             ].map((item, i) => (
               <g key={i} transform={`translate(${i * 72}, 0)`}>
-                <rect x="0" y="0" width="12" height="8" rx="2" fill={item.color} opacity="0.7" />
+                <rect x="0" y="0" width="12" height="8" rx="2" fill={item.color} opacity="0.8" />
                 <text x="16" y="7" className="fill-muted-foreground" fontSize="8">{item.label}</text>
               </g>
             ))}

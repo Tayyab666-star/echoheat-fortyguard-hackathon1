@@ -67,7 +67,7 @@ export function Topbar({
             ))}
           </nav>
         )}
-        <h1 className="truncate text-sm font-semibold">{pageTitle}</h1>
+        <h1 className="truncate font-semibold text-text-primary" style={{ fontSize: "var(--text-heading3)" }}>{pageTitle}</h1>
       </div>
 
       {/* Center: Live Status Pill — hidden on very small screens */}

@@ -4,6 +4,8 @@ import { useRef, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { DollarSign } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/lib/theme"
+import { CardTitle, DataLabel } from "@/components/ui/echo/Text"
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -49,6 +51,7 @@ export function SavingsBarChart() {
   const ref = useRef<SVGSVGElement>(null)
   const [visible, setVisible] = useState(false)
   const [tooltip, setTooltip] = useState<TooltipState | null>(null)
+  const { theme } = useTheme()
 
   useEffect(() => {
     const el = ref.current
@@ -83,7 +86,7 @@ export function SavingsBarChart() {
   return (
     <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-mono text-sm font-semibold">Monthly Savings — Avoided Loss vs EchoHeat Cost</h3>
+        <CardTitle>Monthly Savings — Avoided Loss vs EchoHeat Cost</CardTitle>
         <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[11px] font-medium text-success">
           <DollarSign className="size-3" />
           {formatCurrency(totalSavings)} net annual savings
@@ -105,9 +108,9 @@ export function SavingsBarChart() {
             <stop offset="0%" stopColor="rgb(var(--primary))" stopOpacity="0.9" />
             <stop offset="100%" stopColor="rgb(var(--primary))" stopOpacity="0.5" />
           </linearGradient>
-          <linearGradient id="bar-cost" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="rgb(87, 87, 96)" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="rgb(63, 63, 70)" stopOpacity="0.5" />
+          <linearGradient id={`bar-cost-${theme}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(var(--surface-3))" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="rgb(var(--surface-2))" stopOpacity="0.5" />
           </linearGradient>
         </defs>
 
@@ -173,7 +176,7 @@ export function SavingsBarChart() {
                 y={baseY}
                 width={BAR_W}
                 height={0}
-                fill="url(#bar-cost)"
+                fill={`url(#bar-cost-${theme})`}
                 rx="3"
                 animate={visible ? { y: baseY - costH, height: costH } : {}}
                 transition={{ duration: 0.6, delay: i * 0.05 + 0.1, ease: "easeOut" }}
@@ -198,7 +201,7 @@ export function SavingsBarChart() {
         <g transform={`translate(${W - 200}, ${PAD.top})`}>
           <rect x="0" y="0" width="10" height="10" rx="2" fill="url(#bar-avoided)" />
           <text x="14" y="9" className="fill-muted-foreground" fontSize="9">Avoided Loss</text>
-          <rect x="80" y="0" width="10" height="10" rx="2" fill="url(#bar-cost)" />
+          <rect x="80" y="0" width="10" height="10" rx="2" fill={`url(#bar-cost-${theme})`} />
           <text x="94" y="9" className="fill-muted-foreground" fontSize="9">EchoHeat Cost</text>
         </g>
       </svg>

@@ -17,18 +17,21 @@ export const metadata: Metadata = {
 const THEME_INIT_SCRIPT = `
 (function() {
   try {
-    var theme = localStorage.getItem('echoheat-theme') || 'thermal-dark';
+    var prefs = JSON.parse(localStorage.getItem('echoheat-preferences') || '{}');
+    var theme = prefs.theme || 'thermal-dark';
     document.documentElement.setAttribute('data-theme', theme);
+    if (prefs.reducedMotion) document.documentElement.classList.add('reduce-motion');
+    if (prefs.highContrast) document.documentElement.classList.add('high-contrast');
+    if (prefs.fontSize === 'small') document.documentElement.classList.add('font-size-small');
+    if (prefs.fontSize === 'large') document.documentElement.classList.add('font-size-large');
   } catch(e) {
-    document.documentElement.setAttribute('data-theme', 'thermal-dark');
+    try {
+      var legacy = localStorage.getItem('echoheat-theme') || 'thermal-dark';
+      document.documentElement.setAttribute('data-theme', legacy);
+    } catch(e2) {
+      document.documentElement.setAttribute('data-theme', 'thermal-dark');
+    }
   }
-  try {
-    var a11y = JSON.parse(localStorage.getItem('echoheat-a11y') || '{}');
-    if (a11y.reduceMotion) document.documentElement.classList.add('reduce-motion');
-    if (a11y.highContrast) document.documentElement.classList.add('high-contrast');
-    if (a11y.fontSize === 'small') document.documentElement.classList.add('font-size-small');
-    if (a11y.fontSize === 'large') document.documentElement.classList.add('font-size-large');
-  } catch(e) {}
 })();
 `
 

@@ -150,7 +150,7 @@ export default function AlertsPage() {
       variants={stagger}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
     >
       <motion.div variants={item}>
         <AlertFeedHeader

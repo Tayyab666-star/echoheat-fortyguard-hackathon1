@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { CardTitle, Caption } from "@/components/ui/echo/Text"
 
 type ActionStatus = "completed" | "in-progress" | "failed"
 type ActionType = "PRE_COOL" | "REROUTE" | "REST_DISPATCH" | "ALERT"
@@ -122,10 +123,10 @@ function FeedItem({ entry }: { entry: FeedEntry }) {
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-medium">{entry.description}</p>
-        <p className="mt-0.5 text-[10px] text-muted-foreground">
+        <Caption className="truncate font-medium">{entry.description}</Caption>
+        <Caption className="mt-0.5 text-muted-foreground">
           {entry.timestamp}
-        </p>
+        </Caption>
       </div>
 
       <Badge
@@ -150,7 +151,7 @@ export function LiveActionFeed() {
       className="col-span-full flex flex-col gap-3 rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md lg:col-span-3"
     >
       <div className="flex items-center justify-between">
-        <h3 className="font-mono text-sm font-semibold">Live Action Feed</h3>
+        <CardTitle>Live Action Feed</CardTitle>
         <span className="relative flex size-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
           <span className="relative inline-flex size-2 rounded-full bg-primary" />

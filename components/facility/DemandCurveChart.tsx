@@ -4,6 +4,8 @@ import { useRef, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { DollarSign } from "lucide-react"
 import { useBreakpoint } from "@/hooks/useChartDimensions"
+import { useTheme } from "@/lib/theme"
+import { CardTitle, DataLabel } from "@/components/ui/echo/Text"
 
 const BASELINE_24H = [
   320, 310, 300, 295, 290, 310, 380, 520, 680, 780, 840, 870,
@@ -143,7 +145,7 @@ export function DemandCurveChart() {
   return (
     <div className="relative rounded-2xl border border-border bg-surface-1/80 p-4 sm:p-6 backdrop-blur-md">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="font-mono text-sm font-semibold">{cfg.title}</h3>
+        <CardTitle>{cfg.title}</CardTitle>
         <span className="flex items-center gap-1.5 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[11px] font-medium text-success self-start">
           <DollarSign className="size-3" />
           <span className={bp === "mobile" ? "text-[10px]" : ""}>$2,840 saved today</span>

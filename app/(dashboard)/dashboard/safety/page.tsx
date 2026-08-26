@@ -23,7 +23,7 @@ export default function SafetyPage() {
   const [activeSite, setActiveSite] = React.useState("c")
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4">
       {/* Site selector tabs */}
       <SiteSelector activeSite={activeSite} onSelectSite={setActiveSite} />
 

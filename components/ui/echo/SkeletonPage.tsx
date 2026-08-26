@@ -12,7 +12,7 @@ function SkeletonBlock({ className }: SkeletonBlockProps) {
         className
       )}
     >
-      <div className="h-full w-full animate-pulse bg-gradient-to-r from-surface-1 via-surface-2/50 to-surface-1" />
+      <div className="skeleton h-full w-full" />
     </div>
   )
 }
