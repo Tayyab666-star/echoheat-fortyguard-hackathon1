@@ -61,7 +61,7 @@ function DesktopSidebar({
       {/* Logo */}
       <button
         onClick={onLogoClick}
-        className="flex h-14 shrink-0 items-center gap-2.5 border-b border-border px-4 transition-colors hover:bg-surface-hover"
+        className="flex h-14 shrink-0 items-center gap-2.5 border-b border-border px-4 cursor-pointer transition-colors hover:bg-surface-hover"
         aria-label="EchoHeat home"
       >
         <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-accent-glow">

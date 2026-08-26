@@ -33,7 +33,7 @@ export function MobileHeader({
       {/* Center: Logo */}
       <button
         onClick={onLogoClick}
-        className="flex flex-1 items-center justify-center gap-1.5"
+        className="flex flex-1 cursor-pointer items-center justify-center gap-1.5"
         aria-label="EchoHeat home"
       >
         <Flame className="size-5 text-accent" />

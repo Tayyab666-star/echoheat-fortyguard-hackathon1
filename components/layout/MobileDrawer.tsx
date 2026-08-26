@@ -120,7 +120,7 @@ export function MobileDrawer({ open, onOpenChange, onLogoClick }: MobileDrawerPr
             <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-border px-4">
               <button
                 onClick={() => { onOpenChange(false); onLogoClick?.() }}
-                className="flex items-center gap-2"
+                className="flex cursor-pointer items-center gap-2"
                 aria-label="EchoHeat home"
               >
                 <span className="flex size-8 items-center justify-center rounded-lg bg-accent-glow">
