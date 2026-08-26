@@ -8,11 +8,13 @@ import { Badge } from "@/components/ui/badge"
 interface MobileHeaderProps {
   onMenuOpen?: () => void
   notificationCount?: number
+  onLogoClick?: () => void
 }
 
 export function MobileHeader({
   onMenuOpen,
   notificationCount = 3,
+  onLogoClick,
 }: MobileHeaderProps) {
   return (
     <header
@@ -29,10 +31,14 @@ export function MobileHeader({
       </button>
 
       {/* Center: Logo */}
-      <div className="flex flex-1 items-center justify-center gap-1.5">
+      <button
+        onClick={onLogoClick}
+        className="flex flex-1 items-center justify-center gap-1.5"
+        aria-label="EchoHeat home"
+      >
         <Flame className="size-5 text-accent" />
         <span className="text-lg font-bold text-accent">EchoHeat</span>
-      </div>
+      </button>
 
       {/* Right: Bell + Avatar */}
       <div className="flex items-center gap-2">

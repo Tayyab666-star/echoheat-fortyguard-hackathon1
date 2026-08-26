@@ -40,9 +40,10 @@ const SPRING = { type: "spring" as const, stiffness: 300, damping: 30 }
 interface MobileDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onLogoClick?: () => void
 }
 
-export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
+export function MobileDrawer({ open, onOpenChange, onLogoClick }: MobileDrawerProps) {
   const pathname = usePathname()
   const router = useRouter()
   const drawerRef = React.useRef<HTMLDivElement>(null)
@@ -117,14 +118,18 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
           >
             {/* Header */}
             <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-border px-4">
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => { onOpenChange(false); onLogoClick?.() }}
+                className="flex items-center gap-2"
+                aria-label="EchoHeat home"
+              >
                 <span className="flex size-8 items-center justify-center rounded-lg bg-accent-glow">
                   <Flame className="size-4 text-accent" />
                 </span>
                 <span className="font-mono text-sm font-bold tracking-tight text-text-primary">
                   EchoHeat
                 </span>
-              </div>
+              </button>
               <button
                 onClick={() => onOpenChange(false)}
                 className="flex size-8 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
