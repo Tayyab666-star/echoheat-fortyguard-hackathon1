@@ -103,10 +103,6 @@ export function EchoHeatSplashLoader({ open, onComplete }: EchoHeatSplashLoaderP
               transition={{ duration: 0.4, ease: "easeOut" }}
             />
           </div>
-
-          <p className="mt-3 font-mono text-xs text-text-muted">
-            Loading systems... {elapsed}s / {DURATION_SEC}s
-          </p>
         </motion.div>
       )}
     </AnimatePresence>
