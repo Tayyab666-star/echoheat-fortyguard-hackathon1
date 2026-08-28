@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
   },
 };
 
