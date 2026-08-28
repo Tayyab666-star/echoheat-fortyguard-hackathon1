@@ -111,7 +111,7 @@ export default function OverviewPage() {
     >
       {/* ═══ Row 1: Map + Risk + Fleet ═══ */}
       <div className="grid grid-cols-12 gap-4 w-full min-w-0">
-        <motion.div variants={item} className="col-span-12 md:col-span-7 lg:col-span-6 min-w-0">
+        <motion.div variants={item} className="col-span-12 md:col-span-8 lg:col-span-6 min-w-0">
           <ThermalAlertMap />
         </motion.div>
 
@@ -119,7 +119,7 @@ export default function OverviewPage() {
           <ActiveRiskScore score={78} />
         </motion.div>
 
-        <motion.div variants={item} className="col-span-6 md:col-span-2 lg:col-span-3 min-w-0">
+        <motion.div variants={item} className="col-span-12 md:col-span-4 lg:col-span-3 min-w-0 overflow-hidden">
           <FleetStatusCard />
         </motion.div>
       </div>

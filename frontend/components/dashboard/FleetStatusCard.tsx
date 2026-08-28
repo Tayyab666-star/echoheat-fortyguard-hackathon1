@@ -1,33 +1,55 @@
-"use client"
-
-import { Truck } from "lucide-react"
+'use client'
 
 interface StatRowProps {
   label: string
   value: string | number
-  badge?: { text: string; variant: 'success' | 'warning' | 'info' | 'danger' }
+  badgeText?: string
+  badgeColor?: 'green' | 'orange' | 'blue'
 }
 
-function StatRow({ label, value, badge }: StatRowProps) {
+function StatRow({ label, value, badgeText, badgeColor }: StatRowProps) {
+  const badgeStyles = {
+    green:  'bg-green-500/15 text-green-400',
+    orange: 'bg-orange-500/15 text-orange-400',
+    blue:   'bg-blue-500/15 text-blue-400',
+  }
+
   return (
-    <div className="flex flex-col gap-1 py-2.5 border-b border-[rgba(63,63,70,0.3)] last:border-0 min-w-0">
-      <span className="text-[11px] text-[#A1A1AA] font-medium leading-snug whitespace-normal break-words">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '4px',
+      paddingTop: '10px',
+      paddingBottom: '10px',
+      borderBottom: '1px solid rgba(63,63,70,0.5)',
+    }}>
+      <span style={{
+        fontSize: '12px',
+        color: '#A1A1AA',
+        fontWeight: 500,
+        lineHeight: '1.4',
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+        overflowWrap: 'anywhere',
+      }}>
         {label}
       </span>
 
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-white leading-none tabular-nums">
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <span style={{
+          fontSize: '22px',
+          fontWeight: 700,
+          color: '#FAFAFA',
+          lineHeight: 1,
+        }}>
           {value}
         </span>
-        {badge && (
+        {badgeText && badgeColor && (
           <span className={`
-            text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap shrink-0
-            ${badge.variant === 'success' ? 'bg-emerald-500/15 text-emerald-400' : ''}
-            ${badge.variant === 'warning' ? 'bg-orange-500/15 text-orange-400' : ''}
-            ${badge.variant === 'info'    ? 'bg-sky-500/15 text-sky-400'    : ''}
-            ${badge.variant === 'danger'  ? 'bg-red-500/15 text-red-400'  : ''}
+            text-[10px] font-semibold px-2 py-0.5 rounded-full
+            ${badgeStyles[badgeColor]}
           `}>
-            {badge.text}
+            {badgeText}
           </span>
         )}
       </div>
@@ -37,35 +59,63 @@ function StatRow({ label, value, badge }: StatRowProps) {
 
 export function FleetStatusCard() {
   return (
-    <div className="
-      bg-[#18181B] rounded-2xl border border-[rgba(63,63,70,0.6)]
-      shadow-lg p-5
-      flex flex-col h-full
-      min-w-0
-    ">
-      <div className="flex items-center gap-2 mb-2">
-        <div className="p-1.5 rounded-lg bg-orange-500/10">
-          <Truck className="size-4 text-orange-400" />
-        </div>
-        <h3 className="text-sm font-semibold text-white">Truck Fleet Status</h3>
+    <div style={{
+      background: '#18181B',
+      border: '1px solid rgba(63,63,70,0.6)',
+      borderRadius: '16px',
+      padding: '20px',
+      height: '100%',
+      minWidth: 0,
+      overflow: 'hidden',
+      boxSizing: 'border-box',
+    }}>
+      {/* Header */}
+      <div style={{ marginBottom: '4px' }}>
+        <h3 style={{
+          fontSize: '16px',
+          fontWeight: 700,
+          color: '#FAFAFA',
+          margin: 0,
+          lineHeight: 1.3,
+        }}>
+          Fleet Status
+        </h3>
       </div>
 
-      <StatRow label="Trucks on the road" value={50} />
+      {/* Stats */}
       <StatRow
-        label="Cooling in advance"
+        label="Total Active Vehicles"
+        value={50}
+      />
+      <StatRow
+        label="Pre-Cooling Active"
         value={12}
-        badge={{ text: 'Running', variant: 'success' }}
+        badgeText="Active"
+        badgeColor="green"
       />
       <StatRow
-        label="Routes changed today"
+        label="Routes Re-sequenced Today"
         value={7}
-        badge={{ text: 'Today', variant: 'warning' }}
+        badgeText="Today"
+        badgeColor="orange"
       />
-      <StatRow
-        label="Delivery problems avoided"
-        value={3}
-        badge={{ text: 'Saved', variant: 'info' }}
-      />
+      <div style={{ paddingTop: '10px' }}>
+        <span style={{
+          fontSize: '12px',
+          color: '#A1A1AA',
+          fontWeight: 500,
+          lineHeight: '1.4',
+          whiteSpace: 'normal',
+        }}>
+          SLA Breaches Avoided
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+          <span style={{ fontSize: '22px', fontWeight: 700, color: '#FAFAFA' }}>3</span>
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400">
+            Saved
+          </span>
+        </div>
+      </div>
     </div>
   )
 }

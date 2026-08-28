@@ -599,3 +599,16 @@
     overflow-x: hidden;
   }
 }
+
+/* Fleet Status card — nuclear overflow fix */
+.fleet-status-card * {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.fleet-status-label {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  word-break: break-word !important;
+}

@@ -18,6 +18,7 @@ import {
   Menu,
   X,
 } from "lucide-react"
+import { useSession } from 'next-auth/react'
 
 import { cn } from "@/lib/utils"
 import {
@@ -45,6 +46,10 @@ interface SidebarProps {
 
 function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const userName = session?.user?.name || session?.user?.username || 'User'
+  const userEmail = session?.user?.email || ''
+  const initials = userName.slice(0, 2).toUpperCase()
 
   return (
     <>
@@ -132,59 +137,98 @@ function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { on
       </nav>
 
       {/* ── Bottom section ── */}
-      <div className="mt-auto border-t border-border-default pt-4 space-y-3">
+      <div style={{
+        marginTop: 'auto',
+        borderTop: '1px solid rgba(63,63,70,0.5)',
+        paddingTop: '12px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+      }}>
 
-        {/* Collapse toggle button */}
+        {/* Collapse Button — its own separate element */}
         <button
           onClick={onToggle}
-          className="
-            flex items-center gap-3 w-full px-3 py-2 rounded-xl
-            text-text-muted hover:text-text-primary hover:bg-surface-2
-            transition-all text-sm
-          "
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '8px 12px',
+            borderRadius: '10px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            color: '#A1A1AA',
+            fontSize: '13px',
+            width: '100%',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = '#27272A'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {collapsed ? (
-            <PanelLeftOpen className="size-4 flex-shrink-0" />
+            <PanelLeftOpen size={16} />
           ) : (
-            <PanelLeftClose className="size-4 flex-shrink-0" />
+            <PanelLeftClose size={16} />
           )}
           {!collapsed && <span>Collapse</span>}
         </button>
 
-        {/* ── User row ── */}
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="
-            size-8 rounded-full bg-accent
-            flex items-center justify-center
-            text-text-inverse text-xs font-bold flex-shrink-0
-          ">
-            OG
+        {/* User Row — completely separate from collapse button above */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          padding: '8px 12px',
+          borderRadius: '10px',
+        }}>
+
+          {/* Avatar circle */}
+          <div style={{
+            width: '32px',
+            height: '32px',
+            borderRadius: '50%',
+            background: '#F97316',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '11px',
+            fontWeight: 700,
+            flexShrink: 0,
+          }}>
+            {initials}
           </div>
 
+          {/* Name + email — only visible when sidebar is expanded */}
           {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-text-primary truncate">
-                Operator
+            <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+              <p style={{
+                margin: 0,
+                fontSize: '13px',
+                fontWeight: 600,
+                color: '#FAFAFA',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}>
+                {userName}
               </p>
-              <p className="text-xs text-text-muted truncate">
-                admin@echoheat.com
+              <p style={{
+                margin: 0,
+                fontSize: '11px',
+                color: '#71717A',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}>
+                {userEmail}
               </p>
             </div>
           )}
         </div>
 
-        {/* ── FortyGuard branding ── */}
-        {!collapsed && (
-          <div className="px-3 pb-2">
-            <p className="text-[10px] text-text-muted leading-tight">
-              Powered by
-            </p>
-            <p className="text-[10px] font-semibold text-accent leading-tight">
-              FortyGuard API
-            </p>
-          </div>
-        )}
+        {/* NO "Powered by FortyGuard API" text here — removed permanently */}
 
       </div>
     </>
