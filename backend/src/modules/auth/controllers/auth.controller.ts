@@ -12,6 +12,7 @@ import {
   resetPasswordSchema,
   updateMeSchema,
 } from "../validators.js"
+import { AppError } from "../../../utils/AppError.js"
 
 export const register = asyncCatch(async (req: Request, res: Response) => {
   const body = validate(registerSchema, req.body)
@@ -92,5 +93,32 @@ export const verifyOtp = asyncCatch(async (req: Request, res: Response) => {
 export const resetPassword = asyncCatch(async (req: Request, res: Response) => {
   const body = validate(resetPasswordSchema, req.body)
   const result = await authService.resetPassword(body.resetToken, body.newPassword)
+  sendSuccess(res, result)
+})
+
+export const checkUsername = asyncCatch(async (req: Request, res: Response) => {
+  const { username } = req.query as { username: string }
+  if (!username || username.length < 3) {
+    throw AppError.badRequest("Username must be at least 3 characters")
+  }
+  const result = await authService.checkUsername(username)
+  sendSuccess(res, result)
+})
+
+export const verifyEmail = asyncCatch(async (req: Request, res: Response) => {
+  const { token } = req.query as { token: string }
+  if (!token) {
+    throw AppError.badRequest("Verification token is required")
+  }
+  const result = await authService.verifyEmail(token)
+  sendSuccess(res, result)
+})
+
+export const resendVerification = asyncCatch(async (req: Request, res: Response) => {
+  const { email } = req.body as { email: string }
+  if (!email) {
+    throw AppError.badRequest("Email is required")
+  }
+  const result = await authService.resendVerification(email)
   sendSuccess(res, result)
 })

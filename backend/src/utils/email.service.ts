@@ -187,4 +187,77 @@ export const emailService = {
       text: `New login to your EchoHeat account. Time: ${loginInfo.time}, Location: ${loginInfo.location}, Device: ${loginInfo.device}. If this wasn't you, reset your password.`,
     })
   },
+
+  async sendVerificationEmail(email: string, name: string, token: string): Promise<void> {
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000"
+    const verifyUrl = `${frontendUrl}/verify-email?token=${token}`
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#09090B;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <div style="max-width:480px;margin:40px auto;background-color:#18181B;border-radius:16px;border:1px solid #3F3F46;overflow:hidden;">
+
+    <!-- Header -->
+    <div style="padding:32px 32px 24px;text-align:center;">
+      <div style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:12px;background:rgba(249,115,22,0.15);margin-bottom:12px;">
+        <span style="font-size:24px;">\uD83D\uDD25</span>
+      </div>
+      <h1 style="margin:0;font-size:22px;font-weight:700;color:#F97316;">EchoHeat</h1>
+      <p style="margin:4px 0 0;font-size:12px;color:#71717A;">Autonomous Thermal Orchestration</p>
+    </div>
+
+    <!-- Card -->
+    <div style="padding:0 32px 32px;">
+      <h2 style="margin:0 0 16px;font-size:18px;font-weight:600;color:#FAFAFA;text-align:center;">
+        \u2709\uFE0F Verify Your Email
+      </h2>
+      <p style="margin:0 0 24px;font-size:14px;color:#A1A1AA;line-height:1.6;text-align:center;">
+        Hi ${name}! Welcome to EchoHeat. Click the button below to
+        verify your email address and activate your account.
+      </p>
+
+      <!-- Verify Button -->
+      <a href="${verifyUrl}" style="
+        display:block;
+        background:#F97316;
+        color:white;
+        text-align:center;
+        padding:14px 24px;
+        border-radius:12px;
+        text-decoration:none;
+        font-weight:700;
+        font-size:15px;
+        margin-bottom:20px;
+      ">
+        \u2713 Verify My Email
+      </a>
+
+      <!-- Fine print -->
+      <p style="margin:0 0 8px;font-size:12px;color:#71717A;text-align:center;">
+        This link expires in 24 hours.
+      </p>
+      <p style="margin:0;font-size:12px;color:#52525B;text-align:center;">
+        \uD83D\uDD12 If you didn't create an account, ignore this email.
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:20px 32px;border-top:1px solid #27272A;text-align:center;">
+      <p style="margin:0;font-size:11px;color:#3F3F46;">
+        &copy; 2024 EchoHeat &middot; Powered by FortyGuard API
+      </p>
+    </div>
+  </div>
+</body>
+</html>`
+
+    await emailService.send({
+      to: email,
+      subject: "\u2713 Verify your EchoHeat account",
+      html,
+      text: `Hi ${name}! Verify your email by visiting: ${verifyUrl}. This link expires in 24 hours.`,
+    })
+  },
 }

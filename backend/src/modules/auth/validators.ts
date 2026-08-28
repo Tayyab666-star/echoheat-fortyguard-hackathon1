@@ -8,15 +8,17 @@ export const registerSchema = z
       .email("Please provide a valid email address"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+      .min(8, "Password must be at least 8 characters"),
     name: z
       .string()
       .min(1, "Name is required")
       .max(100, "Name cannot exceed 100 characters")
       .trim(),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(20, "Username cannot exceed 20 characters")
+      .regex(/^[a-z0-9_]+$/, "Username must contain only lowercase letters, numbers, and underscores"),
     role: z
       .enum(["admin", "fleet_manager", "safety_director", "facility_manager"], {
         errorMap: () => ({
@@ -27,9 +29,9 @@ export const registerSchema = z
       .default("fleet_manager"),
     organization: z
       .string()
-      .min(1, "Organization is required")
       .max(200, "Organization cannot exceed 200 characters")
-      .trim(),
+      .trim()
+      .optional(),
   })
   .strict()
 

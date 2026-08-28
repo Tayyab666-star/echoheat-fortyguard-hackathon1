@@ -16,8 +16,12 @@ export interface IUser extends Document {
   email: string
   password: string
   name: string
+  username: string
   role: UserRole
   organization: string
+  status: "pending_verification" | "active"
+  emailVerificationToken?: string
+  emailVerificationExpiry?: Date
   onboardingComplete: boolean
   connectedIntegrations: {
     samsara: boolean
@@ -71,6 +75,27 @@ const userSchema = new Schema<IUser>(
       required: [true, "Name is required"],
       trim: true,
       maxlength: [100, "Name cannot exceed 100 characters"],
+    },
+    username: {
+      type: String,
+      required: [true, "Username is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [/^[a-z0-9_]{3,20}$/, "Username must be 3-20 characters, lowercase letters, numbers, and underscores only"],
+    },
+    status: {
+      type: String,
+      enum: ["pending_verification", "active"],
+      default: "pending_verification",
+    },
+    emailVerificationToken: {
+      type: String,
+      select: false,
+    },
+    emailVerificationExpiry: {
+      type: Date,
+      select: false,
     },
     role: {
       type: String,
@@ -137,6 +162,7 @@ const userSchema = new Schema<IUser>(
 )
 
 userSchema.index({ email: 1 })
+userSchema.index({ username: 1 })
 userSchema.index({ "refreshTokens.token": 1 })
 
 userSchema.pre("save", async function (next) {

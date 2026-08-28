@@ -5,14 +5,7 @@ import Link from "next/link"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Flame, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Flame, Eye, EyeOff, AlertCircle, Loader2, Check, X } from "lucide-react"
 
 const FEATURES = [
   {
@@ -30,14 +23,6 @@ const FEATURES = [
     title: "OSHA Compliance",
     desc: "Legally defensible audit logs",
   },
-]
-
-const ROLES = [
-  "Fleet Manager",
-  "Safety Director",
-  "Facility Manager",
-  "Executive",
-  "Other",
 ]
 
 function computeStrength(password: string): number {
@@ -58,32 +43,69 @@ const STRENGTH_COLORS: Record<number, string> = {
 
 const STRENGTH_LABELS: Record<number, string> = {
   0: "",
-  1: "Too short \u2014 needs 8+ characters",
-  2: "Weak \u2014 add a number",
-  3: "Good \u2014 add a symbol for maximum security",
-  4: "Strong \u2713",
+  1: "Too short — needs 8+ characters",
+  2: "Weak — add numbers",
+  3: "Almost there — add a symbol like ! or @",
+  4: "Strong password ✓",
 }
+
+type UsernameStatus = "idle" | "checking" | "available" | "taken" | "too-short"
 
 export default function SignupPage() {
   const router = useRouter()
 
-  const [name, setName] = React.useState("")
+  const [fullName, setFullName] = React.useState("")
+  const [username, setUsername] = React.useState("")
   const [email, setEmail] = React.useState("")
-  const [organization, setOrganization] = React.useState("")
-  const [role, setRole] = React.useState<string>("")
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
   const [showPassword, setShowPassword] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [agreed, setAgreed] = React.useState(false)
+  const [usernameStatus, setUsernameStatus] = React.useState<UsernameStatus>("idle")
 
   const strength = computeStrength(password)
   const passwordsMatch = password.length > 0 && password === confirmPassword
 
+  // Debounced username availability check
+  React.useEffect(() => {
+    if (username.length < 3) {
+      setUsernameStatus(username.length > 0 ? "too-short" : "idle")
+      return
+    }
+
+    setUsernameStatus("checking")
+    const timer = setTimeout(async () => {
+      try {
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
+        const res = await fetch(`${backendUrl}/api/v1/auth/check-username?username=${username}`)
+        const data = await res.json()
+        setUsernameStatus(data.available ? "available" : "taken")
+      } catch {
+        setUsernameStatus("idle")
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [username])
+
+  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
+    setUsername(value)
+  }
+
+  const isFormValid =
+    fullName.trim().length > 0 &&
+    usernameStatus === "available" &&
+    email.includes("@") &&
+    strength >= 2 &&
+    passwordsMatch &&
+    agreed
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!agreed || strength < 1) return
+    if (!isFormValid) return
 
     setLoading(true)
     setError(null)
@@ -93,7 +115,7 @@ export default function SignupPage() {
       const res = await fetch(`${backendUrl}/api/v1/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, organization, role }),
+        body: JSON.stringify({ fullName, username, email, password }),
       })
 
       const data = await res.json()
@@ -104,7 +126,7 @@ export default function SignupPage() {
         return
       }
 
-      router.push("/loading?type=signup")
+      router.push(`/verify-email-sent?email=${encodeURIComponent(email)}`)
     } catch {
       setError("Something went wrong. Please try again.")
       setLoading(false)
@@ -184,42 +206,40 @@ export default function SignupPage() {
 
           {/* Google OAuth */}
           <button
-            onClick={() => signIn("google", { callbackUrl: "/loading?type=signup" })}
-            className="
-              flex w-full items-center justify-center gap-3 rounded-xl
-              border border-border-default bg-surface-2 px-4 py-3
-              text-sm font-medium text-text-primary
-              transition-colors hover:bg-surface-3
-            "
+            type="button"
+            onClick={() => signIn("google", { callbackUrl: "/verify-email-sent" })}
+            style={{
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
+              padding: "12px 16px",
+              borderRadius: "12px",
+              background: "#27272A",
+              border: "1px solid rgba(63,63,70,0.6)",
+              cursor: "pointer",
+              color: "#FAFAFA",
+              fontSize: "14px",
+              fontWeight: 500,
+              marginBottom: "16px",
+            }}
           >
-            <svg className="size-5" viewBox="0 0 24 24">
-              <path
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
-                fill="#4285F4"
-              />
-              <path
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                fill="#34A853"
-              />
-              <path
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                fill="#FBBC05"
-              />
-              <path
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                fill="#EA4335"
-              />
+            {/* Official Google logo SVG */}
+            <svg width="18" height="18" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            Continue with Google
+            Sign up with Google
           </button>
 
           {/* Divider */}
-          <div className="my-6 flex items-center gap-3">
-            <span className="h-px flex-1 bg-border-default" />
-            <span className="text-xs text-text-muted">
-              or sign up with email
-            </span>
-            <span className="h-px flex-1 bg-border-default" />
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
+            <div style={{ flex: 1, height: "1px", background: "rgba(63,63,70,0.5)" }} />
+            <span style={{ fontSize: "12px", color: "#71717A" }}>or sign up with email</span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(63,63,70,0.5)" }} />
           </div>
 
           {/* Error */}
@@ -238,16 +258,16 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Full Name */}
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="name" className="text-sm font-medium text-text-primary">
+              <label htmlFor="fullName" className="text-sm font-medium text-text-primary">
                 Full Name
               </label>
               <input
-                id="name"
+                id="fullName"
                 type="text"
                 required
                 placeholder="John Doe"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 className="
                   rounded-xl border border-border-default bg-surface-1
                   px-4 py-3 text-sm text-text-primary placeholder:text-text-muted
@@ -255,6 +275,59 @@ export default function SignupPage() {
                   focus:border-accent focus:ring-2 focus:ring-accent/20
                 "
               />
+            </div>
+
+            {/* Username */}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="username" className="text-sm font-medium text-text-primary">
+                Username
+              </label>
+              <input
+                id="username"
+                type="text"
+                required
+                placeholder="johndoe"
+                value={username}
+                onChange={handleUsernameChange}
+                className={`
+                  rounded-xl border bg-surface-1
+                  px-4 py-3 text-sm text-text-primary placeholder:text-text-muted
+                  outline-none transition-colors
+                  focus:ring-2
+                  ${usernameStatus === "available"
+                    ? "border-green-500/50 focus:border-green-500 focus:ring-green-500/20"
+                    : usernameStatus === "taken"
+                    ? "border-accent-danger/40 focus:border-accent-danger focus:ring-accent-danger/20"
+                    : "border-border-default focus:border-accent focus:ring-accent/20"
+                  }
+                `}
+              />
+              {/* Username validation feedback */}
+              {username.length > 0 && (
+                <div className="flex items-center gap-1.5">
+                  {usernameStatus === "checking" && (
+                    <p className="text-[11px] text-text-muted">Checking availability...</p>
+                  )}
+                  {usernameStatus === "available" && (
+                    <p className="flex items-center gap-1 text-[11px] text-green-400">
+                      <Check size={12} /> Available
+                    </p>
+                  )}
+                  {usernameStatus === "taken" && (
+                    <p className="flex items-center gap-1 text-[11px] text-accent-danger">
+                      <X size={12} /> Already taken
+                    </p>
+                  )}
+                  {usernameStatus === "too-short" && (
+                    <p className="text-[11px] text-orange-400">
+                      Too short — needs 3+ characters
+                    </p>
+                  )}
+                </div>
+              )}
+              <p className="text-[11px] text-text-muted">
+                Only lowercase letters, numbers, and _ allowed
+              </p>
             </div>
 
             {/* Work Email */}
@@ -276,46 +349,6 @@ export default function SignupPage() {
                   focus:border-accent focus:ring-2 focus:ring-accent/20
                 "
               />
-            </div>
-
-            {/* Company Name */}
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="org" className="text-sm font-medium text-text-primary">
-                Company Name
-              </label>
-              <input
-                id="org"
-                type="text"
-                required
-                placeholder="Acme Corp"
-                value={organization}
-                onChange={(e) => setOrganization(e.target.value)}
-                className="
-                  rounded-xl border border-border-default bg-surface-1
-                  px-4 py-3 text-sm text-text-primary placeholder:text-text-muted
-                  outline-none transition-colors
-                  focus:border-accent focus:ring-2 focus:ring-accent/20
-                "
-              />
-            </div>
-
-            {/* Role */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-primary">
-                Role
-              </label>
-              <Select value={role} onValueChange={setRole}>
-                <SelectTrigger className="w-full rounded-xl border border-border-default bg-surface-1 px-4 py-3 text-sm text-text-primary outline-none transition-colors focus:border-accent focus:ring-2 focus:ring-accent/20">
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLES.map((r) => (
-                    <SelectItem key={r} value={r}>
-                      {r}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
 
             {/* Password */}
@@ -418,7 +451,7 @@ export default function SignupPage() {
             {/* Submit */}
             <button
               type="submit"
-              disabled={loading || !agreed || strength < 1}
+              disabled={loading || !isFormValid}
               className="
                 mt-2 flex w-full items-center justify-center gap-2 rounded-xl
                 bg-accent px-4 py-3 text-sm font-semibold text-text-inverse
@@ -432,7 +465,7 @@ export default function SignupPage() {
                   Creating account...
                 </>
               ) : (
-                "Create account"
+                "Create Account →"
               )}
             </button>
           </form>
@@ -444,7 +477,7 @@ export default function SignupPage() {
               href="/login"
               className="font-medium text-accent hover:underline"
             >
-              Sign in &rarr;
+              Sign in →
             </Link>
           </p>
         </div>

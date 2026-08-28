@@ -23,15 +23,96 @@ export class AuthService {
     email: string
     password: string
     name: string
+    username: string
     role?: UserRole
-    organization: string
+    organization?: string
   }) {
-    const user = await authRepository.create(data)
-    const tokens = await this.generateAndStoreTokens(user.id, user.email, user.role, user.organization)
-    return {
-      user: this.sanitizeUser(user),
-      ...tokens,
+    // Check if username is already taken
+    const existingUsername = await authRepository.findByUsername(data.username)
+    if (existingUsername) {
+      throw AppError.badRequest("Username is already taken")
     }
+
+    // Check if email is already registered
+    const existingEmail = await authRepository.findByEmail(data.email)
+    if (existingEmail) {
+      throw AppError.badRequest("Email is already registered")
+    }
+
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex")
+    const tokenHash = hashToken(verificationToken)
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+    const user = await authRepository.create({
+      ...data,
+      organization: data.organization || "Personal",
+      status: "pending_verification",
+      emailVerificationToken: tokenHash,
+      emailVerificationExpiry: tokenExpiry,
+    })
+
+    // Send verification email (fire and forget)
+    emailService.sendVerificationEmail(user.email, user.name, verificationToken).catch((err) =>
+      logger.error("Failed to send verification email:", err)
+    )
+
+    return {
+      success: true,
+      message: "Check your email to verify your account",
+    }
+  }
+
+  async checkUsername(username: string) {
+    const user = await authRepository.findByUsername(username)
+    return { available: !user }
+  }
+
+  async verifyEmail(token: string) {
+    const tokenHash = hashToken(token)
+    const user = await authRepository.findUserByVerificationToken(tokenHash)
+
+    if (!user) {
+      throw AppError.badRequest("Invalid or expired verification token")
+    }
+
+    if (user.emailVerificationExpiry && new Date() > user.emailVerificationExpiry) {
+      throw AppError.badRequest("Verification token has expired. Please request a new one.")
+    }
+
+    // Activate user
+    user.status = "active"
+    user.emailVerificationToken = undefined
+    user.emailVerificationExpiry = undefined
+    await user.save()
+
+    return { success: true, message: "Email verified successfully" }
+  }
+
+  async resendVerification(email: string) {
+    const user = await authRepository.findByEmail(email)
+    if (!user) {
+      // Don't reveal if email exists
+      return { message: "If an account exists with this email, a verification link has been sent" }
+    }
+
+    if (user.status === "active") {
+      return { message: "If an account exists with this email, a verification link has been sent" }
+    }
+
+    // Generate new verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex")
+    const tokenHash = hashToken(verificationToken)
+    const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+
+    await authRepository.setVerificationToken(user._id.toString(), tokenHash, tokenExpiry)
+
+    // Send verification email (fire and forget)
+    emailService.sendVerificationEmail(user.email, user.name, verificationToken).catch((err) =>
+      logger.error("Failed to send verification email:", err)
+    )
+
+    return { message: "If an account exists with this email, a verification link has been sent" }
   }
 
   async login(email: string, password: string, userAgent?: string, ip?: string) {
@@ -41,6 +122,9 @@ export class AuthService {
     }
     if (!user.isActive) {
       throw AppError.forbidden("Account has been deactivated. Contact your administrator.")
+    }
+    if (user.status === "pending_verification") {
+      throw AppError.forbidden("Please verify your email before signing in. Check your inbox for the verification link.")
     }
     const tokens = await this.generateAndStoreTokens(user.id, user.email, user.role, user.organization, userAgent, ip)
     return {
@@ -228,6 +312,8 @@ export class AuthService {
       id: user._id.toString(),
       email: user.email,
       name: user.name,
+      username: user.username,
+      status: user.status,
       role: user.role,
       organization: user.organization,
       onboardingComplete: user.onboardingComplete,

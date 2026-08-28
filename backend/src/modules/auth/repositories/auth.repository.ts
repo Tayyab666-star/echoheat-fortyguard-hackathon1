@@ -6,6 +6,10 @@ export class AuthRepository {
     return User.findOne({ email }).select("+password +refreshTokens")
   }
 
+  async findByUsername(username: string): Promise<IUser | null> {
+    return User.findOne({ username: username.toLowerCase() })
+  }
+
   async findById(id: string): Promise<IUser | null> {
     return User.findById(id)
   }
@@ -26,13 +30,13 @@ export class AuthRepository {
     email: string
     password: string
     name: string
+    username: string
     role?: string
     organization: string
+    status?: string
+    emailVerificationToken?: string
+    emailVerificationExpiry?: Date
   }): Promise<IUser> {
-    const existing = await User.findOne({ email: data.email })
-    if (existing) {
-      throw AppError.conflict("An account with this email already exists")
-    }
     return User.create(data)
   }
 
@@ -74,6 +78,22 @@ export class AuthRepository {
       { email },
       { $set: { passwordResetToken: tokenHash, passwordResetExpires: expiresAt } }
     )
+  }
+
+  async findUserByVerificationToken(tokenHash: string): Promise<IUser | null> {
+    return User.findOne({
+      emailVerificationToken: tokenHash,
+      emailVerificationExpiry: { $gt: new Date() },
+    }).select("+emailVerificationToken +emailVerificationExpiry")
+  }
+
+  async setVerificationToken(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
+    await User.findByIdAndUpdate(userId, {
+      $set: {
+        emailVerificationToken: tokenHash,
+        emailVerificationExpiry: expiresAt,
+      },
+    })
   }
 
   async findUserByResetToken(tokenHash: string): Promise<IUser | null> {
