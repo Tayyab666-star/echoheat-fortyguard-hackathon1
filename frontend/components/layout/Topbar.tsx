@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Bell } from "lucide-react"
+import { Bell, LogOut, Settings, User, ChevronDown } from "lucide-react"
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import {
   DropdownMenu,
@@ -44,8 +45,28 @@ export function Topbar({
   activeZone = "karachi",
   onZoneChange,
 }: TopbarProps) {
+  const { data: session } = useSession()
+  const router = useRouter()
+  const [open, setOpen] = React.useState(false)
+  const dropdownRef = React.useRef<HTMLDivElement>(null)
+
+  const userName = session?.user?.name || 'User'
+  const userEmail = session?.user?.email || ''
+  const initials = userName.slice(0, 2).toUpperCase()
+
   const zoneLabel =
     ZONES.find((z) => z.value === activeZone)?.label ?? "Unknown Zone"
+
+  // Close when clicking outside
+  React.useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <header
@@ -136,9 +157,192 @@ export function Topbar({
 
         <Separator orientation="vertical" className="h-6" />
 
-        <Avatar size="sm">
-          <AvatarFallback>OG</AvatarFallback>
-        </Avatar>
+        {/* Avatar Button + Dropdown */}
+        <div ref={dropdownRef} style={{ position: 'relative' }}>
+
+          {/* Avatar Button */}
+          <button
+            onClick={() => setOpen(!open)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 8px',
+              borderRadius: '10px',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#27272A'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            {/* Circle with initials */}
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: '#F97316',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '12px',
+              fontWeight: 700,
+            }}>
+              {initials}
+            </div>
+            <ChevronDown size={12} color="#A1A1AA" />
+          </button>
+
+          {/* Dropdown Panel */}
+          {open && (
+            <div style={{
+              position: 'absolute',
+              right: 0,
+              top: 'calc(100% + 8px)',
+              width: '240px',
+              background: '#18181B',
+              border: '1px solid rgba(63,63,70,0.7)',
+              borderRadius: '16px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
+              zIndex: 1000,
+              overflow: 'hidden',
+            }}>
+
+              {/* User info header */}
+              <div style={{
+                padding: '16px',
+                borderBottom: '1px solid rgba(63,63,70,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  background: '#F97316',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  flexShrink: 0,
+                }}>
+                  {initials}
+                </div>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#FAFAFA',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}>
+                    {userName}
+                  </p>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '12px',
+                    color: '#71717A',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}>
+                    {userEmail}
+                  </p>
+                </div>
+              </div>
+
+              {/* Menu items */}
+              <div style={{ padding: '8px' }}>
+
+                {/* My Profile */}
+                <button
+                  onClick={() => { router.push('/dashboard/settings'); setOpen(false) }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    width: '100%',
+                    color: '#D4D4D8',
+                    fontSize: '13px',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#27272A'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <User size={15} color="#71717A" />
+                  My Profile
+                </button>
+
+                {/* Settings */}
+                <button
+                  onClick={() => { router.push('/dashboard/settings'); setOpen(false) }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    width: '100%',
+                    color: '#D4D4D8',
+                    fontSize: '13px',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#27272A'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <Settings size={15} color="#71717A" />
+                  Settings
+                </button>
+
+              </div>
+
+              {/* Logout — red, separated */}
+              <div style={{
+                padding: '8px',
+                borderTop: '1px solid rgba(63,63,70,0.5)',
+              }}>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    width: '100%',
+                    color: '#F87171',
+                    fontSize: '13px',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.08)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                >
+                  <LogOut size={15} color="#F87171" />
+                  Sign Out
+                </button>
+              </div>
+
+            </div>
+          )}
+
+        </div>
       </div>
     </header>
   )
