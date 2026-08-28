@@ -1,6 +1,8 @@
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
+import UAParser from "ua-parser-js"
+import geoip from "geoip-lite"
 import { env } from "../../../config/env.js"
 import { authRepository } from "../repositories/auth.repository.js"
 import { AppError } from "../../../utils/AppError.js"
@@ -127,6 +129,34 @@ export class AuthService {
       throw AppError.forbidden("Please verify your email before signing in. Check your inbox for the verification link.")
     }
     const tokens = await this.generateAndStoreTokens(user.id, user.email, user.role, user.organization, userAgent, ip)
+
+    // Send login notification email (fire and forget — never blocks response)
+    try {
+      const parser = new UAParser(userAgent || "")
+      const browserInfo = parser.getBrowser()
+      const osInfo = parser.getOS()
+      const device = `${browserInfo.name || "Unknown browser"} on ${osInfo.name || "Unknown OS"}`
+
+      const rawIP = (ip || "").replace("::ffff:", "")
+      const geo = geoip.lookup(rawIP)
+      const location = geo ? `${geo.city || "Unknown city"}, ${geo.country || "Unknown country"}` : "Unknown location"
+
+      const loginTime = new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Karachi",
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
+
+      emailService.sendLoginNotificationEmail(user.email, user.name, {
+        time: loginTime,
+        location,
+        device,
+        ip: rawIP || "Unknown",
+      }).catch((err) => logger.error("Login notification email failed:", err))
+    } catch (err) {
+      logger.error("Failed to send login notification:", err)
+    }
+
     return {
       user: this.sanitizeUser(user),
       ...tokens,
