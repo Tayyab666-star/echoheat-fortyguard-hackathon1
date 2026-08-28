@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -18,6 +19,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
+  webpack: (config) => {
+    config.resolve.alias["@shared"] = path.resolve(__dirname, "../shared");
+    return config;
   },
 };
 
