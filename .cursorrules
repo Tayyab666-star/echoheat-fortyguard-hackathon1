@@ -1,0 +1,83 @@
+# EchoHeat — Cursor IDE Rules
+
+## Project Overview
+EchoHeat is an Autonomous Thermal Orchestration Engine — a full-stack industrial thermal safety platform with Next.js 15 frontend, Express.js backend, MongoDB database, and shared TypeScript types.
+
+## Architecture
+- Manual monorepo (no workspaces): `frontend/`, `backend/`, `database/`, `shared/`
+- Frontend: Next.js 15 App Router, React 19, Tailwind CSS v4, Radix UI, Framer Motion
+- Backend: Express.js 4, Mongoose 8, Redis, Socket.io, JWT auth, Zod validation
+- Database: MongoDB 7 with Mongoose models, seeds, and migrations
+- Shared: TypeScript domain types in `shared/types/index.ts`
+
+## Rules
+
+### 1. Authenticity
+All technical facts must be verifiable. No hallucinated APIs, fabricated methods, or dummy fallbacks. If uncertain, say "I need to verify this."
+
+### 2. Planning Governance
+Always present a complete implementation plan before making any file changes. Wait for explicit user approval.
+
+### 3. Session Continuity
+Read these files at session start:
+1. `AI_CONTEXT.md` — architecture, tech stack, strict rules
+2. `PROJECT_ROADMAP.md` — current phase, blockers, scope
+3. `SYSTEM_LEDGER.md` — file history, known issues, next actions
+
+Update `PROJECT_ROADMAP.md` and `SYSTEM_LEDGER.md` at session end.
+
+### 4. Scope Control
+Work strictly within the current 🔴 ACTIVE phase declared in `PROJECT_ROADMAP.md`. Do not build out of scope.
+
+### 5. Code Standards
+
+#### Frontend (`frontend/`)
+- Use `"use client"` directive at top of files with React hooks
+- Use `cn()` from `@/lib/utils` for conditional classes
+- Use `fetchAPI()` from `@/lib/api/client.ts` for API calls
+- Use `useSession()` from `@/hooks/useSession` for session data
+- Use Radix UI primitives for accessible components
+- Never import from `backend/`
+- Use `@shared/*` for shared types (maps to `../shared/*`)
+- Never use `window`/`document` in Server Components
+
+#### Backend (`backend/`)
+- Follow module pattern: `modules/[domain]/routes/` + `modules/[domain]/services/`
+- Validate all inputs with Zod schemas
+- Use `authenticate` middleware for protected routes
+- Use Winston for logging (`logger.info()`, `logger.error()`)
+- Never import from `frontend/`
+
+#### Shared Types
+- All domain types live in `shared/types/index.ts`
+- Frontend accesses via `@shared/types` (tsconfig path + webpack alias)
+- Never create duplicate type definitions
+
+### 6. Git Workflow
+- Never commit unless user explicitly asks
+- Commit messages: `type(scope): description` (feat, fix, chore, refactor)
+- Never commit secrets, .env files, node_modules, or .next
+- Run `npm run build` before committing
+
+### 7. File Modifications
+- Always check neighboring files for patterns before creating new ones
+- Prefer editing existing files over creating new ones
+- Follow the existing code style (check indentation, naming, imports)
+- Do not add comments unless user requests them
+
+## Environment Variables (Frontend)
+```
+NEXTAUTH_SECRET=...          # 32+ char random string
+NEXTAUTH_URL=...             # Production: https://echoheat.vercel.app
+GOOGLE_CLIENT_ID=...         # From Google Cloud Console
+GOOGLE_CLIENT_SECRET=...     # From Google Cloud Console
+BACKEND_URL=...              # Backend API URL (e.g., Railway)
+NEXT_PUBLIC_API_URL=...      # Same as BACKEND_URL (used client-side)
+```
+
+## Build Commands
+- Frontend dev: `cd frontend && npm run dev`
+- Frontend build: `cd frontend && npm run build`
+- Backend dev: `cd backend && npm run dev`
+- Backend build: `cd backend && npm run build`
+- Full stack: `npm run dev` (root — uses concurrently)
