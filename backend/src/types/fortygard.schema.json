@@ -1,0 +1,51 @@
+{
+  "description": "FortyGuard API response schema",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "location": {
+      "type": "object",
+      "properties": {
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "address": { "type": "string" }
+      },
+      "required": ["lat", "lng"]
+    },
+    "temperature_2m": {
+      "type": "number",
+      "description": "Ambient temp at 2-meter height (°C)"
+    },
+    "relative_humidity": {
+      "type": "number",
+      "description": "Percentage"
+    },
+    "solar_radiation": {
+      "type": "number",
+      "description": "W/m²"
+    },
+    "wind_speed": {
+      "type": "number",
+      "description": "m/s"
+    },
+    "apparent_temperature": {
+      "type": "number",
+      "description": "Feels-like temp"
+    },
+    "precipitation": {
+      "type": "number",
+      "description": "mm"
+    }
+  },
+  "required": [
+    "timestamp",
+    "location",
+    "temperature_2m",
+    "relative_humidity",
+    "solar_radiation",
+    "wind_speed"
+  ]
+}

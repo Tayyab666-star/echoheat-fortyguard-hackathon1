@@ -1,0 +1,20 @@
+{
+  "cooling_load_mw": {
+    "threshold_c": 44.14,
+    "correlation": 0.957,
+    "p_value": 0.0,
+    "description": "Temperature threshold where cooling load increases significantly"
+  },
+  "delivery_delay_min": {
+    "threshold_c": 44.64,
+    "correlation": 0.867,
+    "p_value": 0.0,
+    "description": "Temperature threshold where delivery delays begin"
+  },
+  "worker_incident_flag": {
+    "threshold_c": 36.64,
+    "correlation": 0.83,
+    "p_value": 0.0,
+    "description": "Temperature threshold where worker incidents increase"
+  }
+}

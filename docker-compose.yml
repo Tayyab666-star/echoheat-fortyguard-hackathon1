@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  # ── MongoDB ──────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: echoheat-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: echoheat
+      MONGO_INITDB_ROOT_PASSWORD: echoheat_dev
+      MONGO_INITDB_DATABASE: echoheat
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Redis ────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: echoheat-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── EchoHeat API ─────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: echoheat-api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      MONGODB_URI: mongodb://echoheat:echoheat_dev@mongo:27017/echoheat?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-production-min-32-characters-long!!
+      JWT_REFRESH_SECRET: dev-refresh-secret-change-in-production-min-32-chars!!
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      ALLOWED_ORIGINS: http://localhost:3000,http://localhost:4000
+      FORTYGUARD_API_KEY: mock-fortyguard-key
+      FORTYGUARD_MOCK: "true"
+      RATE_LIMIT_PUBLIC: "100"
+      RATE_LIMIT_AUTHENTICATED: "1000"
+      RATE_LIMIT_THERMAL_ENGINE: "100"
+      RATE_LIMIT_LOGIN: "5"
+      LOG_LEVEL: info
+      SMTP_HOST: ""
+      SMTP_PORT: "587"
+      SMTP_SECURE: "false"
+      SMTP_USER: ""
+      SMTP_PASS: ""
+      SMTP_FROM: ""
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  mongo_data:
+  redis_data:
