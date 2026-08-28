@@ -207,7 +207,7 @@ export default function SignupPage() {
           {/* Google OAuth */}
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl: "/verify-email-sent" })}
+            onClick={() => signIn("google", { callbackUrl: "/loading?type=signup" })}
             style={{
               width: "100%",
               display: "flex",
