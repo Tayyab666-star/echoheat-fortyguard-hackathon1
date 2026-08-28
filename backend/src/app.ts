@@ -1,4 +1,3 @@
-import "dotenv/config"
 import express from "express"
 import cors from "cors"
 import helmet from "helmet"
@@ -6,6 +5,7 @@ import { createServer } from "http"
 
 import { env } from "./config/env.js"
 import { logger } from "./config/logger.js"
+import { connectDB, disconnectDB } from "./config/db.js"
 import { closeRedis } from "./config/redis.js"
 import {
   globalErrorHandler,
@@ -132,6 +132,9 @@ httpServer.listen(PORT, async () => {
   logger.info(`Health check: http://localhost:${PORT}/api/v1/health`)
   logger.info(`WebSocket: ws://localhost:${PORT}/alerts`)
 
+  // Connect to MongoDB first
+  await connectDB()
+
   // Start the 5-minute thermal poll cron job
   startThermalPollJob()
 
@@ -143,6 +146,7 @@ httpServer.listen(PORT, async () => {
 async function gracefulShutdown(signal: string) {
   logger.info(`${signal} received, shutting down gracefully...`)
   httpServer.close(async () => {
+    await disconnectDB()
     await closeRedis()
     logger.info("Server shut down")
     process.exit(0)

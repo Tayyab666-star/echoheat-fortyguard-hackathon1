@@ -2,7 +2,7 @@
 // Central export point for all models, interfaces, and connection utilities
 
 // ── Connection ───────────────────────────────────────────────
-export { connectDatabase, disconnectDatabase, mongoose } from "./connection.js"
+export { connectDatabase, disconnectDatabase, getConnectionString, mongoose } from "./connection.js"
 
 // ── Models ───────────────────────────────────────────────────
 export { User } from "./models/User.js"
@@ -43,6 +43,7 @@ export {
   type IEnvironment,
   type IAssetSpecific,
   type ICalculatedRisk,
+  type IReadingCoordinates,
 } from "./interfaces/thermalReading.js"
 export {
   type IAlert,
@@ -51,6 +52,7 @@ export {
   type AlertStatus,
   type IThermalSnapshot,
   type IAlertLocation,
+  type IAlertAction,
 } from "./interfaces/alert.js"
 export {
   type IAlertActionRecord,

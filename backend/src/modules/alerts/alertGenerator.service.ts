@@ -75,7 +75,7 @@ export class AlertGeneratorService {
   // ── Evaluate all active assets ─────────────────────────────
 
   async evaluateAllAssets(): Promise<{ evaluated: number; alertsGenerated: number }> {
-    const activeAssets = await Asset.find({ isActive: true }).lean()
+    const activeAssets = await Asset.find({ isActive: true })
     let totalAlerts = 0
 
     for (const asset of activeAssets) {
@@ -85,11 +85,7 @@ export class AlertGeneratorService {
 
       if (!latestReading) continue
 
-      // Hydrate the asset for the evaluation
-      const hydratedAsset = await Asset.findById(asset._id)
-      if (!hydratedAsset) continue
-
-      const alerts = await this.evaluateAsset(hydratedAsset, latestReading as unknown as IThermalReading)
+      const alerts = await this.evaluateAsset(asset, latestReading as unknown as IThermalReading)
       totalAlerts += alerts.length
     }
 
@@ -97,7 +93,7 @@ export class AlertGeneratorService {
     const activeAlertCount = await Alert.countDocuments({ status: "pending" })
     const assetsAtRisk = await Asset.countDocuments({
       isActive: true,
-      "vehicleData.currentStatus.engineStatus": "on",
+      _id: { $in: await Alert.distinct("asset", { status: "pending" }) },
     })
 
     socketService.emitSystemStats({ activeAlerts: activeAlertCount, assetsAtRisk })

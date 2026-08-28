@@ -19,14 +19,14 @@ export async function warmFortyGuardCache(): Promise<void> {
     const assets = await db
       .collection("assets")
       .find(
-        { "location.coordinates": { $exists: true }, status: { $ne: "retired" } },
-        { projection: { _id: 1, name: 1, "location.coordinates": 1 } }
+        { isActive: true },
+        { projection: { _id: 1, assetType: 1, vehicleData: 1, siteData: 1 } }
       )
       .limit(50)
       .toArray()
 
     if (assets.length === 0) {
-      logger.info("Cache warming: no active assets with coordinates found")
+      logger.info("Cache warming: no active assets found")
       return
     }
 
@@ -36,13 +36,27 @@ export async function warmFortyGuardCache(): Promise<void> {
     let errors = 0
     for (const asset of assets) {
       try {
-        const coords = (asset as any).location?.coordinates
-        if (!coords?.latitude || !coords?.longitude) continue
+        // Extract coordinates based on asset type
+        let lat = 0
+        let lng = 0
+        const assetType = (asset as any).assetType
+        const vd = (asset as any).vehicleData
+        const sd = (asset as any).siteData
 
-        const result = await fortygardClient.getEnvironmentData(coords.latitude, coords.longitude, 500)
+        if (assetType === "vehicle" && vd?.currentStatus?.location) {
+          lat = vd.currentStatus.location.lat ?? 0
+          lng = vd.currentStatus.location.lng ?? 0
+        } else if (assetType === "site" && sd?.coordinates) {
+          lat = sd.coordinates.lat ?? 0
+          lng = sd.coordinates.lng ?? 0
+        }
+
+        if (lat === 0 && lng === 0) continue
+
+        const result = await fortygardClient.getEnvironmentData(lat, lng, 500)
         if (isError(result)) {
           errors++
-          logger.debug(`Cache warming: FortyGuard error for ${(asset as any).name}: [${result.code}]`)
+          logger.debug(`Cache warming: FortyGuard error for ${(asset as any)._id}: [${result.code}]`)
         } else {
           warmed++
         }

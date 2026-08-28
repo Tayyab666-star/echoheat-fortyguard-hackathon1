@@ -208,7 +208,10 @@ class SocketService {
       const { Asset } = await import("../../assets/Asset.model.js")
 
       const activeAlerts = await Alert.countDocuments({ status: "pending" })
-      const assetsAtRisk = await Asset.countDocuments({ isActive: true })
+      const assetsAtRisk = await Asset.countDocuments({
+        isActive: true,
+        _id: { $in: await Alert.distinct("asset", { status: "pending" }) },
+      })
 
       this.emitSystemStats({ activeAlerts, assetsAtRisk })
     } catch (error) {

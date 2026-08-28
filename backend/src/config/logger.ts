@@ -1,6 +1,8 @@
 import winston from "winston"
 import DailyRotateFile from "winston-daily-rotate-file"
-import { env } from "./env.js"
+
+const NODE_ENV = process.env.NODE_ENV || "development"
+const LOG_LEVEL = process.env.LOG_LEVEL || "info"
 
 const enumerateErrorFormat = winston.format((info) => {
   if (info instanceof Error) {
@@ -36,7 +38,7 @@ const transports: winston.transport[] = [
   }),
 ]
 
-if (env.NODE_ENV !== "production") {
+if (NODE_ENV !== "production") {
   transports.push(
     new winston.transports.Console({
       format: consoleFormat,
@@ -45,7 +47,7 @@ if (env.NODE_ENV !== "production") {
 }
 
 export const logger = winston.createLogger({
-  level: env.LOG_LEVEL,
+  level: LOG_LEVEL,
   levels: winston.config.npm.levels,
   transports,
 })

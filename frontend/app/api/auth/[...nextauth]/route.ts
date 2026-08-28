@@ -30,17 +30,47 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const res = await fetch(
-          `${process.env.BACKEND_URL}/api/v1/auth/login`,
-          {
-            method: "POST",
-            body: JSON.stringify(credentials),
-            headers: { "Content-Type": "application/json" },
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        try {
+          const res = await fetch(
+            `${process.env.BACKEND_URL}/api/v1/auth/login`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                email: credentials.email,
+                password: credentials.password,
+              }),
+              headers: { "Content-Type": "application/json" },
+            }
+          )
+
+          if (!res.ok) {
+            const text = await res.text()
+            let message = "Invalid credentials"
+            try {
+              const json = JSON.parse(text)
+              message = json.message || message
+            } catch {
+              // Response is not JSON (e.g., HTML error page from proxy)
+              message = `Backend unavailable (${res.status})`
+            }
+            throw new Error(message)
           }
-        )
-        const json = await res.json()
-        if (res.ok && json.data) return json.data as User
-        throw new Error(json.message || "Invalid credentials")
+
+          const json = await res.json()
+          if (json.data) {
+            return json.data as User
+          }
+          throw new Error("Invalid response from backend")
+        } catch (error) {
+          if (error instanceof Error) {
+            throw error
+          }
+          throw new Error("Unable to connect to authentication server")
+        }
       },
     }),
   ],

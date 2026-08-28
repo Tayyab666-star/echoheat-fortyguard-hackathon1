@@ -76,14 +76,4 @@ export async function closeRedis(): Promise<void> {
   }
 }
 
-// ── Graceful shutdown ────────────────────────────────────────
-function registerShutdown() {
-  const shutdown = async () => {
-    await closeRedis()
-    process.exit(0)
-  }
-  process.on("SIGTERM", shutdown)
-  process.on("SIGINT", shutdown)
-}
 
-registerShutdown()

@@ -1,6 +1,5 @@
 import type { Request, Response } from "express"
 import { authService } from "../services/auth.service.js"
-import { emailService } from "../../../utils/email.service.js"
 import { sendSuccess } from "../../../utils/response.js"
 import { asyncCatch } from "../../../utils/asyncCatch.js"
 import { validate } from "../../../utils/validators.js"
@@ -25,22 +24,6 @@ export const login = asyncCatch(async (req: Request, res: Response) => {
   const userAgent = req.headers["user-agent"]
   const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ?? req.ip
   const result = await authService.login(body.email, body.password, userAgent, ip)
-
-  const time = new Date().toLocaleString("en-US", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  })
-
-  const rawIP = ip || "unknown"
-  const device = userAgent || "Unknown device"
-
-  emailService.sendLoginNotificationEmail(result.user.email, result.user.name, {
-    time,
-    location: "Unknown location",
-    device,
-    ip: rawIP,
-  }).catch(() => {})
-
   sendSuccess(res, result, "Login successful")
 })
 

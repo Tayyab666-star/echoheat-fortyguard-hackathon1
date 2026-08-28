@@ -90,7 +90,6 @@ const userSchema = new Schema<IUser, IUserModel>(
 
 // ── Indexes ──────────────────────────────────────────────────
 
-userSchema.index({ email: 1 })
 userSchema.index({ organization: 1 })
 userSchema.index({ "refreshTokens.token": 1 }, { sparse: true })
 

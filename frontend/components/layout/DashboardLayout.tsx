@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Flame, Menu, X } from "lucide-react"
+import { Flame } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav"
@@ -11,7 +11,7 @@ import { MobileHeader } from "@/components/layout/MobileHeader"
 import { MobileDrawer } from "@/components/layout/MobileDrawer"
 import { PageTransition } from "@/components/layout/PageTransition"
 import { EchoHeatSplashLoader } from "@/components/layout/EchoHeatSplashLoader"
-import { useSession } from "@/hooks/useSession"
+import { useSession } from "next-auth/react"
 import {
   LayoutDashboard,
   Truck,
@@ -202,7 +202,17 @@ function formatRelativeTime(dateStr: string): string {
   return `${Math.floor(hours / 24)}d ago`
 }
 
-function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
+function DesktopTopBar({
+  pageTitle,
+  unreadCount,
+  onMarkAllRead,
+  recentAlerts,
+}: {
+  pageTitle?: string
+  unreadCount: number
+  onMarkAllRead: () => void
+  recentAlerts: any[]
+}) {
   const { session } = useSession()
   const router = useRouter()
 
@@ -219,52 +229,11 @@ function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
 
   /* ── Notification Bell state ── */
   const [notifOpen, setNotifOpen] = React.useState(false)
-  const [recentAlerts, setRecentAlerts] = React.useState<any[]>([])
-  const [unreadCount, setUnreadCount] = React.useState(0)
   const bellRef = React.useRef<HTMLDivElement>(null)
 
   /* ── Avatar Dropdown state ── */
   const [avatarOpen, setAvatarOpen] = React.useState(false)
   const avatarRef = React.useRef<HTMLDivElement>(null)
-
-  /* ── Fetch alerts + unread count ── */
-  React.useEffect(() => {
-    let cancelled = false
-    let interval: ReturnType<typeof setInterval>
-
-    async function fetchAlerts() {
-      try {
-        const res = await fetch("/api/v1/alerts/stats")
-        if (res.ok) {
-          const data = await res.json()
-          if (!cancelled) {
-            setUnreadCount(data.unread ?? 0)
-          }
-        }
-      } catch { /* ignore */ }
-    }
-
-    async function fetchRecent() {
-      try {
-        const res = await fetch("/api/v1/alerts?limit=5&status=pending")
-        if (res.ok) {
-          const data = await res.json()
-          if (!cancelled && data.data) {
-            setRecentAlerts(data.data)
-          }
-        }
-      } catch { /* ignore */ }
-    }
-
-    fetchAlerts()
-    fetchRecent()
-    interval = setInterval(() => {
-      fetchAlerts()
-      fetchRecent()
-    }, 30000)
-
-    return () => { cancelled = true; clearInterval(interval) }
-  }, [])
 
   /* ── Click-outside handler ── */
   React.useEffect(() => {
@@ -279,10 +248,6 @@ function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
-
-  function markAllRead() {
-    setUnreadCount(0)
-  }
 
   return (
     <header className="sticky top-0 z-30 hidden h-14 shrink-0 items-center gap-3 border-b border-border bg-surface-1/80 px-6 backdrop-blur-md lg:flex">
@@ -321,7 +286,7 @@ function DesktopTopBar({ pageTitle }: { pageTitle?: string }) {
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(63,63,70,0.4)]">
                 <span className="text-sm font-semibold text-white">Notifications</span>
-                <button onClick={markAllRead} className="text-xs text-orange-500 hover:underline">
+                <button onClick={onMarkAllRead} className="text-xs text-orange-500 hover:underline">
                   Mark all read
                 </button>
               </div>
@@ -455,10 +420,57 @@ export function DashboardLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false)
   const [drawerOpen, setDrawerOpen] = React.useState(false)
   const [splashOpen, setSplashOpen] = React.useState(false)
+  const [unreadCount, setUnreadCount] = React.useState(0)
+  const [recentAlerts, setRecentAlerts] = React.useState<any[]>([])
 
   const handleSplashComplete = React.useCallback(() => {
     setSplashOpen(false)
   }, [])
+
+  /* ── Fetch alerts + unread count ── */
+  React.useEffect(() => {
+    let cancelled = false
+    let interval: ReturnType<typeof setInterval>
+
+    async function fetchAlerts() {
+      try {
+        const res = await fetch("/api/v1/alerts/stats")
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled) {
+            setUnreadCount(data.data?.pending ?? data.pending ?? 0)
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    async function fetchRecent() {
+      try {
+        const res = await fetch("/api/v1/alerts?limit=5&status=pending")
+        if (res.ok) {
+          const data = await res.json()
+          if (!cancelled && data.data) {
+            setRecentAlerts(data.data)
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    fetchAlerts()
+    fetchRecent()
+    interval = setInterval(() => {
+      fetchAlerts()
+      fetchRecent()
+    }, 30000)
+
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [])
+
+  function markAllRead() {
+    fetch("/api/v1/alerts/mark-all-read", { method: "POST" })
+      .then(() => setUnreadCount(0))
+      .catch(() => setUnreadCount(0))
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -468,7 +480,7 @@ export function DashboardLayout({
       {/* ═══ Mobile Components ═══ */}
       <MobileHeader
         onMenuOpen={() => setDrawerOpen(true)}
-        notificationCount={3}
+        notificationCount={unreadCount}
         onLogoClick={() => setSplashOpen(true)}
       />
       <MobileDrawer open={drawerOpen} onOpenChange={setDrawerOpen} onLogoClick={() => setSplashOpen(true)} />
@@ -490,8 +502,13 @@ export function DashboardLayout({
           } as React.CSSProperties
         }
       >
-        {/* Desktop top bar */}
-        <DesktopTopBar pageTitle={pageTitle} />
+        {/* ═══ Desktop top bar ═══ */}
+        <DesktopTopBar
+          pageTitle={pageTitle}
+          unreadCount={unreadCount}
+          onMarkAllRead={markAllRead}
+          recentAlerts={recentAlerts}
+        />
 
         <main className="flex-1 px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           <PageTransition>{children}</PageTransition>

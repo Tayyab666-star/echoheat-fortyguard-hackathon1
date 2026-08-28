@@ -1,4 +1,4 @@
-import mongoose, { Schema, type Types } from "mongoose"
+import mongoose, { Schema } from "mongoose"
 import type {
   IAlert,
   IThermalSnapshot,

@@ -7,6 +7,7 @@ import { Flame, X } from "lucide-react"
 import { motion, AnimatePresence, type PanInfo } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useTheme } from "@/lib/theme/provider"
 import {
   LayoutDashboard,
   Truck,
@@ -48,6 +49,7 @@ export function MobileDrawer({ open, onOpenChange, onLogoClick }: MobileDrawerPr
   const router = useRouter()
   const drawerRef = React.useRef<HTMLDivElement>(null)
   const startX = React.useRef(0)
+  const { theme, setTheme } = useTheme()
 
   const handleDragEnd = React.useCallback(
     (_: unknown, info: PanInfo) => {
@@ -73,11 +75,8 @@ export function MobileDrawer({ open, onOpenChange, onLogoClick }: MobileDrawerPr
   )
 
   const handleThemeSwitch = React.useCallback((themeId: string) => {
-    document.documentElement.setAttribute("data-theme", themeId)
-    try {
-      localStorage.setItem("echoheat-theme", themeId)
-    } catch {}
-  }, [])
+    setTheme(themeId as any)
+  }, [setTheme])
 
   const handleNavigate = React.useCallback(
     (href: string) => {

@@ -180,7 +180,7 @@ export class AuthService {
     const user = await authRepository.findById(userId)
     if (!user) throw AppError.notFound("User not found")
 
-    const activeAlerts = await Alert.countDocuments({ status: "pending" })
+    const activeAlerts = await Alert.countDocuments({ status: "pending", organization: user.organization })
 
     return {
       user: this.sanitizeUser(user),
@@ -319,11 +319,11 @@ export class AuthService {
     const payload: JwtPayload = { userId, email, role, organization }
 
     const accessToken = jwt.sign(payload, env.JWT_SECRET, {
-      expiresIn: ACCESS_TOKEN_EXPIRY as unknown as number,
+      expiresIn: ACCESS_TOKEN_EXPIRY,
     })
 
     const refreshToken = jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-      expiresIn: REFRESH_TOKEN_EXPIRY as unknown as number,
+      expiresIn: REFRESH_TOKEN_EXPIRY,
     })
 
     const tokenHash = hashToken(refreshToken)
