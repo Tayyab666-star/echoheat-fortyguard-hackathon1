@@ -45,7 +45,6 @@ export function useThemeColors(varNames: string[]): string[] {
  */
 export function useHeatOverlayColors() {
   const { isDark } = useTheme()
-  const { theme } = useTheme()
 
   return React.useMemo(() => {
     if (isDark) {
@@ -66,7 +65,7 @@ export function useHeatOverlayColors() {
       warningBg: "rgba(161,98,7,0.12)",
       safeBg: "rgba(21,128,61,0.12)",
     }
-  }, [isDark, theme])
+  }, [isDark])
 }
 
 /**

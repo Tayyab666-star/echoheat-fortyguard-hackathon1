@@ -110,6 +110,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     if (!mounted) return
     applyA11ySettings(prefs)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefs.reducedMotion, prefs.highContrast, prefs.fontSize, mounted])
 
   React.useEffect(() => {

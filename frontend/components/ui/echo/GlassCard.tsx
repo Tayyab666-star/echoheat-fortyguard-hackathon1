@@ -20,6 +20,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
       return (
         <div
           ref={ref}
+          {...props}
           className={cn(
             "rounded-2xl border border-border bg-surface-1",
             "shadow-[var(--shadow-md)] backdrop-blur-sm",
@@ -36,6 +37,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
     return (
       <motion.div
         ref={ref}
+        {...props}
         whileHover={{ y: -2, boxShadow: "var(--shadow-lg)" }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
         className={cn(

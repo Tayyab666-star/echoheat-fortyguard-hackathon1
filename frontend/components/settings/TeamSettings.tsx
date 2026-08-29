@@ -5,7 +5,6 @@ import {
   Users,
   Send,
   MoreHorizontal,
-  Shield,
   Truck,
   HardHat,
   Building2,

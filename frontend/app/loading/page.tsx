@@ -4,7 +4,7 @@ import * as React from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { LoadingScreen } from "@/components/auth/LoadingScreen"
 
-export default function LoadingPage() {
+function LoadingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const type = (searchParams.get("type") as "initial" | "login" | "signup") || "initial"
@@ -14,4 +14,12 @@ export default function LoadingPage() {
   }, [router])
 
   return <LoadingScreen type={type} onComplete={handleComplete} />
+}
+
+export default function LoadingPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <LoadingContent />
+    </React.Suspense>
+  )
 }
