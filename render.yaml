@@ -1,0 +1,79 @@
+services:
+  # ── EchoHeat API (Express Backend) ──────────────────────────
+  - type: web
+    name: echoheat-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/v1/health
+    envVars:
+      # ── Server ────────────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      # ── Database (from Render Redis) ──────────────────────
+      - key: REDIS_URL
+        fromDatabase:
+          name: echoheat-redis
+          property: connectionString
+      # ── Secrets (user fills in Dashboard) ─────────────────
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # ── JWT Config ────────────────────────────────────────
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+      # ── FortyGuard ────────────────────────────────────────
+      - key: FORTYGUARD_API_KEY
+        sync: false
+      - key: FORTYGUARD_MOCK
+        value: "true"
+      - key: FORTYGUARD_BASE_TEMP
+        value: "38"
+      - key: FORTYGUARD_HEAT_SPIKE
+        value: "6"
+      # ── Rate Limiting ─────────────────────────────────────
+      - key: RATE_LIMIT_PUBLIC
+        value: "100"
+      - key: RATE_LIMIT_AUTHENTICATED
+        value: "1000"
+      - key: RATE_LIMIT_THERMAL_ENGINE
+        value: "100"
+      - key: RATE_LIMIT_LOGIN
+        value: "5"
+      # ── Logging ───────────────────────────────────────────
+      - key: LOG_LEVEL
+        value: info
+      # ── Cache TTLs ────────────────────────────────────────
+      - key: CACHE_TTL_FORTYGUARD
+        value: "300"
+      - key: CACHE_TTL_KPI
+        value: "120"
+      - key: CACHE_TTL_ASSET_STATUS
+        value: "30"
+      - key: CACHE_TTL_ALERT_STATS
+        value: "60"
+      - key: CACHE_TTL_ANALYTICS_ROI
+        value: "600"
+      - key: CACHE_WARM_ON_START
+        value: "true"
+
+# ── Redis (Key-Value Store) ──────────────────────────────────
+databases:
+  - name: echoheat-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
