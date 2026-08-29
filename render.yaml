@@ -10,13 +10,10 @@ services:
     startCommand: npm start
     branch: main
     autoDeploy: true
-    healthCheckPath: /api/v1/health
     envVars:
       # ── Server ────────────────────────────────────────────
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 10000
       # ── Database (from Render Redis) ──────────────────────
       - key: REDIS_URL
         fromDatabase:
