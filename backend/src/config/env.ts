@@ -8,13 +8,13 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(4000),
   // ── Required Infrastructure ──────────────────────────────
   MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
-  REDIS_URL: z.string().min(1, "REDIS_URL is required"),
+  REDIS_URL: z.string().optional().default(""),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
   JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET must be at least 32 characters"),
   JWT_EXPIRES_IN: z.string().default("15m"),
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
   ALLOWED_ORIGINS: z.string().min(1, "ALLOWED_ORIGINS is required (comma-separated)"),
-  FORTYGUARD_API_KEY: z.string().min(1, "FORTYGUARD_API_KEY is required"),
+  FORTYGUARD_API_KEY: z.string().optional().default(""),
   // ── Rate Limiting ────────────────────────────────────────
   RATE_LIMIT_PUBLIC: z.coerce.number().default(100),
   RATE_LIMIT_AUTHENTICATED: z.coerce.number().default(1000),

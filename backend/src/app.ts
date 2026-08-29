@@ -132,14 +132,22 @@ httpServer.listen(PORT, async () => {
   logger.info(`Health check: http://localhost:${PORT}/api/v1/health`)
   logger.info(`WebSocket: ws://localhost:${PORT}/alerts`)
 
-  // Connect to MongoDB first
-  await connectDB()
+  // Connect to MongoDB (non-fatal in production)
+  try {
+    await connectDB()
+  } catch {
+    logger.warn("Startup: MongoDB connection failed, running in degraded mode")
+  }
 
   // Start the 5-minute thermal poll cron job
   startThermalPollJob()
 
   // Initialize Redis cache warming and metrics logger
-  await initializeCache()
+  try {
+    await initializeCache()
+  } catch {
+    logger.warn("Startup: Cache initialization skipped")
+  }
 })
 
 // ── Graceful Shutdown ────────────────────────────────────────

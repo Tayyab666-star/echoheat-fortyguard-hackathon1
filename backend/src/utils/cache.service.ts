@@ -22,6 +22,7 @@ export const cacheService = {
   async get<T>(key: string): Promise<T | null> {
     try {
       const redis = await getRedisClient()
+      if (!redis) { misses++; return null }
       const raw = await redis.get(key)
       if (!raw) {
         misses++
@@ -39,6 +40,7 @@ export const cacheService = {
   async set<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
     try {
       const redis = await getRedisClient()
+      if (!redis) return
       await redis.setEx(key, ttlSeconds, JSON.stringify(value))
     } catch (err) {
       logger.debug(`Cache SET error for key ${key}:`, err)
@@ -48,6 +50,7 @@ export const cacheService = {
   async del(key: string): Promise<void> {
     try {
       const redis = await getRedisClient()
+      if (!redis) return
       await redis.del(key)
     } catch (err) {
       logger.debug(`Cache DEL error for key ${key}:`, err)
@@ -57,6 +60,7 @@ export const cacheService = {
   async invalidatePattern(pattern: string): Promise<void> {
     try {
       const redis = await getRedisClient()
+      if (!redis) return
       let cursor = "0"
       do {
         const result = await redis.scan(cursor, { MATCH: pattern, COUNT: 100 })

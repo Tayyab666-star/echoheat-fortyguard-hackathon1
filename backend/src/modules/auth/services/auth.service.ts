@@ -1,7 +1,7 @@
 import crypto from "crypto"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
-import UAParser from "ua-parser-js"
+import { UAParser } from "ua-parser-js"
 import geoip from "geoip-lite"
 import { env } from "../../../config/env.js"
 import { authRepository } from "../repositories/auth.repository.js"

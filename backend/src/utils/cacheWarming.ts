@@ -96,6 +96,10 @@ export async function initializeCache(): Promise<void> {
     return
   }
 
-  await warmFortyGuardCache()
-  startCacheMetricsLogger()
+  try {
+    await warmFortyGuardCache()
+    startCacheMetricsLogger()
+  } catch (err) {
+    logger.warn("Cache initialization skipped:", err)
+  }
 }

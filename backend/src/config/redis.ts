@@ -52,7 +52,8 @@ async function connectWithRetry(url: string, retries = 5, delay = 2000): Promise
   throw new Error("Redis: failed to connect after all retries")
 }
 
-export async function getRedisClient(): Promise<RedisClientType> {
+export async function getRedisClient(): Promise<RedisClientType | null> {
+  if (!env.REDIS_URL) return null
   if (client?.isOpen) return client
   if (connecting) {
     while (connecting) await new Promise((r) => setTimeout(r, 100))
