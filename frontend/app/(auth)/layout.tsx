@@ -7,7 +7,12 @@ export default async function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession(authOptions)
+  let session = null
+  try {
+    session = await getServerSession(authOptions)
+  } catch {
+    // NEXTAUTH_SECRET not configured — allow access to auth pages
+  }
   if (session) redirect("/dashboard")
   return <>{children}</>
 }
