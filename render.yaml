@@ -75,5 +75,4 @@ services:
 databases:
   - name: echoheat-redis
     plan: free
-    maxmemoryPolicy: allkeys-lru
     ipAllowList: []
