@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Flame, Mail, ArrowLeft, Loader2, Check } from "lucide-react"
 
-export default function VerifyEmailSentPage() {
+function VerifyEmailSentContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
   const [resending, setResending] = React.useState(false)
@@ -116,5 +116,13 @@ export default function VerifyEmailSentPage() {
         </p>
       </motion.div>
     </div>
+  )
+}
+
+export default function VerifyEmailSentPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <VerifyEmailSentContent />
+    </React.Suspense>
   )
 }

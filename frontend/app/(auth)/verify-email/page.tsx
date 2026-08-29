@@ -8,7 +8,7 @@ import { Flame, CheckCircle, XCircle, Loader2 } from "lucide-react"
 
 type VerificationStatus = "loading" | "success" | "error"
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
   const [status, setStatus] = React.useState<VerificationStatus>("loading")
@@ -141,5 +141,13 @@ export default function VerifyEmailPage() {
         </div>
       </motion.div>
     </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <VerifyEmailContent />
+    </React.Suspense>
   )
 }
