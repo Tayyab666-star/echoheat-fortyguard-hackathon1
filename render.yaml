@@ -14,13 +14,10 @@ services:
       # ── Server ────────────────────────────────────────────
       - key: NODE_ENV
         value: production
-      # ── Database (from Render Redis) ──────────────────────
-      - key: REDIS_URL
-        fromDatabase:
-          name: echoheat-redis
-          property: connectionString
       # ── Secrets (user fills in Dashboard) ─────────────────
       - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
         sync: false
       - key: JWT_SECRET
         sync: false
@@ -67,9 +64,3 @@ services:
         value: "600"
       - key: CACHE_WARM_ON_START
         value: "true"
-
-# ── Redis (Key-Value Store) ──────────────────────────────────
-databases:
-  - name: echoheat-redis
-    plan: free
-    ipAllowList: []

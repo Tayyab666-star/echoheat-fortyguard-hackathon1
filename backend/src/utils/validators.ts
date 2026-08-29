@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { AppError } from "./AppError.js"
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -22,9 +23,8 @@ export function validate<TInput, TOutput = TInput>(schema: z.ZodSchema<TOutput, 
       if (!formatted[path]) formatted[path] = []
       formatted[path].push(issue.message)
     })
-    const error = new Error("Validation failed") as Error & { statusCode: number; errors: Record<string, string[]> }
-    error.statusCode = 422
-    error.errors = formatted
+    const error = AppError.validation("Validation failed")
+    ;(error as any).errors = formatted
     throw error
   }
   return result.data

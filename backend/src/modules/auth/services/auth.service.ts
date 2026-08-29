@@ -2,7 +2,6 @@ import crypto from "crypto"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { UAParser } from "ua-parser-js"
-import geoip from "geoip-lite"
 import { env } from "../../../config/env.js"
 import { authRepository } from "../repositories/auth.repository.js"
 import { AppError } from "../../../utils/AppError.js"
@@ -11,6 +10,22 @@ import { logger } from "../../../config/logger.js"
 import { emailService } from "../../../utils/email.service.js"
 import type { JwtPayload } from "../../../middleware/authenticate.js"
 import type { IUser, UserRole } from "../User.model.js"
+
+// Lazy geoip import — fails gracefully if geoip-lite is unavailable
+let _geoip: { lookup(ip: string): { city?: string; country?: string } | null } | null = null
+let _geoipLoaded = false
+
+function getGeoLookup(): ((ip: string) => { city?: string; country?: string } | null) | null {
+  if (!_geoipLoaded) {
+    _geoipLoaded = true
+    try {
+      _geoip = require("geoip-lite")
+    } catch {
+      logger.warn("geoip-lite unavailable — login location will show as Unknown")
+    }
+  }
+  return _geoip ? (ip) => _geoip!.lookup(ip) : null
+}
 
 function hashToken(token: string): string {
   return crypto.createHash("sha256").update(token).digest("hex")
@@ -138,7 +153,7 @@ export class AuthService {
       const device = `${browserInfo.name || "Unknown browser"} on ${osInfo.name || "Unknown OS"}`
 
       const rawIP = (ip || "").replace("::ffff:", "")
-      const geo = geoip.lookup(rawIP)
+      const geo = getGeoLookup()?.(rawIP)
       const location = geo ? `${geo.city || "Unknown city"}, ${geo.country || "Unknown country"}` : "Unknown location"
 
       const loginTime = new Date().toLocaleString("en-US", {

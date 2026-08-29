@@ -28,6 +28,8 @@ import integrationsRoutes from "./modules/integrations/routes/integrations.route
 import thermalEngineRoutes from "./modules/thermalEngine/routes/thermalEngine.routes.js"
 import { startThermalPollJob } from "./jobs/thermalPoll.job.js"
 
+import mongoose from "mongoose"
+
 const app = express()
 const httpServer = createServer(app)
 
@@ -106,8 +108,19 @@ app.get("/api/v1/health", (_req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: env.NODE_ENV,
+    mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     websocket: socketService.getIO() !== null ? "connected" : "disconnected",
   })
+})
+
+app.get("/api/v1/health/db", async (_req, res) => {
+  try {
+    await mongoose.connection.db?.admin().ping()
+    sendSuccess(res, { status: "ok", mongodb: "connected" })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error"
+    sendSuccess(res, { status: "error", mongodb: "disconnected", error: message }, "Database unavailable", 503 as any)
+  }
 })
 
 // ── API Routes ──────────────────────────────────────────────
