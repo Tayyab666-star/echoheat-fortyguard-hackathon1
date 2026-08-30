@@ -1,26 +1,35 @@
+// backend/src/modules/thermalEngine/services/thermalEngine.service.ts
 import mongoose from "mongoose"
-import { ThermalReading } from "../../assets/ThermalReading.model.js"
-import { Alert } from "../../alerts/Alert.model.js"
-import { AppError } from "../../../utils/AppError.js"
-import { logger } from "../../../config/logger.js"
+import { ThermalReading } from "../../assets/ThermalReading.model"
+import { Alert } from "../../alerts/Alert.model"
+import { AppError } from "../../../utils/AppError"
+import { logger } from "../../../config/logger"
 import type {
   WbgtParamsInput,
   ThermalLagParamsInput,
   CargoDecayParamsInput,
   PeakDemandParamsInput,
   RoiParamsInput,
-} from "../validators.js"
-import thresholds from "../../../data/thresholds.json"
+} from "../validators"
+
+// ── Fallback / Imported Thresholds ───────────────────────────
+let thresholds: any = {
+  worker_incident_flag: { threshold_c: 32.0 },
+  delivery_delay_min: { threshold_c: 35.0 },
+  cooling_load_mw: { threshold_c: 38.0 },
+}
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  thresholds = require("../../../data/thresholds.json")
+} catch {
+  // Fallback defaults in case json is absent in specific runner environments
+}
 
 // ── Constants ───────────────────────────────────────────────
 
 const SPECIFIC_HEAT_CONCRETE = 0.88 // kJ/(kg·K)
-const STEFAN_BOLTZMANN = 5.67e-8 // W/(m²·K⁴)
 const Q10_PERISHABLE = 2.0 // Q10 coefficient for perishable goods
-
-// ── Data Analyst Thresholds ─────────────────────────────────
-// Imported from data-analyst-work/data/processed/correlation_results.csv
-// These thresholds are used for alert generation based on correlation analysis
 
 // ── Types ───────────────────────────────────────────────────
 
@@ -137,17 +146,10 @@ export class ThermalEngine {
       0.00391838 * Math.pow(rw, 1.5) * Math.atan(0.023101 * rw) -
       4.686035
 
-    // Globe temperature approximation (no globe sensor → estimate from DB + solar)
-    // GT ≈ DB + (solarRadiation × absorption) / (h_conv) - (emission × σ × T⁴) / h_conv
-    // Simplified: GT ≈ DB + 0.01 × solarRadiation - 0.005 × windSpeed
     const globeTemp = dryBulbTemp + 0.01 * solarRadiation - 0.005 * windSpeed
-
-    // ISO 7243: WBGT = 0.7 × NWB + 0.2 × GT + 0.1 × DB
     const wbgt = 0.7 * wetBulbTemp + 0.2 * globeTemp + 0.1 * dryBulbTemp
-
     const roundedWbgt = Math.round(wbgt * 10) / 10
 
-    // OSHA heat stress categorization
     let heatStressCategory: string
     let requiredWorkRestRatio: string
     let riskLevel: WBGTResult["riskLevel"]
@@ -212,8 +214,12 @@ export class ThermalEngine {
         "STOP ALL outdoor work immediately. OSHA action level breached. Mandatory rest enforcement. Log to Procore."
     }
 
-    // Reference data analyst correlation thresholds for alert generation
-    const workerIncidentThreshold = thresholds.worker_incident_flag.threshold_c
+    const workerIncidentThreshold =
+      thresholds?.worker_incident_flag?.threshold_c ?? 32.0
+    const deliveryDelayThreshold =
+      thresholds?.delivery_delay_min?.threshold_c ?? 35.0
+    const coolingLoadThreshold =
+      thresholds?.cooling_load_mw?.threshold_c ?? 38.0
 
     return {
       wbgt: roundedWbgt,
@@ -232,8 +238,8 @@ export class ThermalEngine {
       },
       correlationThresholds: {
         workerIncidentThreshold,
-        deliveryDelayThreshold: thresholds.delivery_delay_min.threshold_c,
-        coolingLoadThreshold: thresholds.cooling_load_mw.threshold_c,
+        deliveryDelayThreshold,
+        coolingLoadThreshold,
       },
     }
   }
@@ -243,41 +249,22 @@ export class ThermalEngine {
   calculateThermalLag(params: ThermalLagParamsInput): ThermalLagResult {
     const { ambientTemp, uValue, wallMass, currentIndoorTemp, targetTemp, solarLoad, surfaceArea } = params
 
-    // Temperature difference driving heat flow
     const deltaOutdoor = Math.abs(ambientTemp - currentIndoorTemp)
     const deltaTarget = Math.abs(currentIndoorTemp - targetTemp)
-
-    // Heat flux through envelope (W): Q = U × A × ΔT
     const envelopeHeatFlux = uValue * surfaceArea * deltaOutdoor
-
-    // Solar heat gain (W): Q_solar = solarLoad × surfaceArea (simplified)
-    const solarHeatGain = solarLoad * surfaceArea * 0.3 // 30% solar absorptance
-
-    // Total heat input (W)
+    const solarHeatGain = solarLoad * surfaceArea * 0.3
     const totalHeatFlux = envelopeHeatFlux + solarHeatGain
-
-    // Thermal capacity (J/K): C = mass × specificHeat × 1000
     const thermalCapacity = wallMass * SPECIFIC_HEAT_CONCRETE * 1000
-
-    // Time constant (seconds): τ = C / (U × A)
     const timeConstant = totalHeatFlux > 0 ? thermalCapacity / totalHeatFlux : Infinity
 
-    // Time constant in minutes
     const lagMinutes = Math.round(timeConstant / 60)
     const lagHours = Math.round((lagMinutes / 60) * 10) / 10
-
-    // Pre-cool start time: lag before peak temperature
     const now = new Date()
     const preCoolStartTime = new Date(now.getTime() + lagMinutes * 60 * 1000)
-
-    // Recommended setpoint: offset from target to account for thermal lag
     const recommendedSetpoint = Math.round((targetTemp - deltaTarget * 0.3) * 10) / 10
-
-    // Peak exposure time: when indoor temp would reach ambient if no cooling
     const peakExposureMinutes = Math.round((lagMinutes * 1.5) / 30) * 30
     const peakExposureTime = new Date(now.getTime() + peakExposureMinutes * 60 * 1000)
 
-    // Build explanation
     let explanation: string
     if (lagMinutes < 30) {
       explanation = `Very low thermal lag (${lagMinutes} min). Building responds quickly to outdoor temperature changes. Pre-cooling has minimal benefit.`
@@ -313,26 +300,13 @@ export class ThermalEngine {
   calculateCargoDecay(params: CargoDecayParamsInput): CargoDecayResult {
     const { currentInternalTemp, ambientRoadTemp, insulationRValue, doorOpenEvents, timeElapsed, setpointTemp } = params
 
-    // Base decay constant from insulation R-value
-    // Higher R-value → slower heat transfer → lower k
-    // k = 1 / (R × thermal_mass_factor) per minute
-    const insulationFactor = 1 / (insulationRValue * 0.1) // normalized
-
-    // Door open penalty: each event adds ~5 minutes of direct heat exposure
+    const insulationFactor = 1 / (insulationRValue * 0.1)
     const doorPenalty = doorOpenEvents * 5 * insulationFactor
-
-    // Effective decay constant (per minute)
     const k = (insulationFactor + doorPenalty) * 0.001
-
-    // Q10 model: rate doubles per 10°C above setpoint
     const tempAboveSetpoint = Math.max(0, currentInternalTemp - setpointTemp)
     const q10Multiplier = Math.pow(Q10_PERISHABLE, tempAboveSetpoint / 10)
-
-    // Combined decay rate (per minute)
     const effectiveK = k * q10Multiplier
 
-    // Project temperature at t minutes using Newton's law of cooling/heating
-    // T(t) = T_ambient + (T_initial - T_ambient) × e^(-k×t)
     const projectTemp = (minutes: number): number => {
       const projected = ambientRoadTemp + (currentInternalTemp - ambientRoadTemp) * Math.exp(-effectiveK * minutes)
       return Math.round(projected * 100) / 100
@@ -341,22 +315,16 @@ export class ThermalEngine {
     const projectedTempAt30min = projectTemp(30)
     const projectedTempAt60min = projectTemp(60)
 
-    // Time to exceed setpoint (if currently below)
     let timeToExceedSetpoint: number | null = null
     if (currentInternalTemp < setpointTemp && ambientRoadTemp > setpointTemp) {
-      // Solve: setpointTemp = ambient + (current - ambient) × e^(-k×t)
-      // t = -ln((setpointTemp - ambient) / (current - ambient)) / k
       const ratio = (setpointTemp - ambientRoadTemp) / (currentInternalTemp - ambientRoadTemp)
       if (ratio > 0 && ratio < 1) {
         timeToExceedSetpoint = Math.round(-Math.log(ratio) / effectiveK)
-        if (timeToExceedSetpoint > 480) timeToExceedSetpoint = null // >8 hours
+        if (timeToExceedSetpoint > 480) timeToExceedSetpoint = null
       }
     }
 
-    // Decay rate per hour
     const decayRatePerHour = Math.round(effectiveK * 60 * 1000) / 1000
-
-    // Risk assessment
     let riskLevel: CargoDecayResult["riskLevel"]
     let riskScore: number
     let recommendPreCoolAt: number
@@ -385,7 +353,6 @@ export class ThermalEngine {
       recommendPreCoolAt = 0
     }
 
-    // Build explanation
     let explanation: string
     if (tempRise <= 0) {
       explanation = `Cargo temperature stable. No decay expected within 60 minutes. Setpoint of ${setpointTemp}°C is maintained.`
@@ -422,18 +389,15 @@ export class ThermalEngine {
   calculatePeakDemandRisk(params: PeakDemandParamsInput): PeakDemandResult {
     const { currentLoad, forecastedAmbientTemp, thermalLag, activeSystems, tariffPeakWindow } = params
 
-    // Parse peak window times
     const [peakStartH, peakStartM] = tariffPeakWindow.start.split(":").map(Number)
     const [peakEndH, peakEndM] = tariffPeakWindow.end.split(":").map(Number)
     const peakStartMinutes = (peakStartH ?? 0) * 60 + (peakStartM ?? 0)
     const peakEndMinutes = (peakEndH ?? 0) * 60 + (peakEndM ?? 0)
 
-    // Load increase per degree above 25°C (typical HVAC response)
     const degreesAboveComfort = Math.max(0, forecastedAmbientTemp - 25)
-    const loadIncreasePerDegree = currentLoad * 0.035 // 3.5% per °C
+    const loadIncreasePerDegree = currentLoad * 0.035
     const projectedPeakLoad = currentLoad + degreesAboveComfort * loadIncreasePerDegree
 
-    // Coincident peak risk
     let coincidentPeakRisk: PeakDemandResult["coincidentPeakRisk"]
     let riskScore: number
 
@@ -453,28 +417,22 @@ export class ThermalEngine {
       riskScore = 90
     }
 
-    // Pre-cool start: thermalLag minutes before peak window
     const preCoolStartMinutes = peakStartMinutes - thermalLag
     const preCoolStartHour = Math.floor(((preCoolStartMinutes % 1440) + 1440) % 1440 / 60)
     const preCoolStartMin = ((preCoolStartMinutes % 60) + 60) % 60
     const recommendedPreCoolStart = `${String(preCoolStartHour).padStart(2, "0")}:${String(Math.round(preCoolStartMin)).padStart(2, "0")}`
 
-    // Projected savings from pre-cooling
-    // Pre-cooling reduces peak load by absorbing heat into thermal mass
     const preCoolReduction = Math.min(degreesAboveComfort * loadIncreasePerDegree * 0.6, currentLoad * 0.15)
     const projectedSavings = Math.round(preCoolReduction * ((peakEndMinutes - peakStartMinutes) / 60) * 100) / 100
 
-    // Staging schedule
     const stagingSchedule: StagingEntry[] = []
 
-    // Stage 1: Pre-cool start
     stagingSchedule.push({
       time: recommendedPreCoolStart,
       action: "Initiate pre-cooling. Reduce setpoints by 2-3°C across all zones.",
       expectedLoadReduction: Math.round(preCoolReduction * 0.3),
     })
 
-    // Stage 2: Staging down
     const stage2Minutes = peakStartMinutes - Math.round(thermalLag * 0.5)
     const stage2Hour = Math.floor(((stage2Minutes % 1440) + 1440) % 1440 / 60)
     const stage2Min = Math.round(((stage2Minutes % 60) + 60) % 60)
@@ -484,14 +442,12 @@ export class ThermalEngine {
       expectedLoadReduction: Math.round(preCoolReduction * 0.4),
     })
 
-    // Stage 3: Peak window start
     stagingSchedule.push({
       time: tariffPeakWindow.start,
       action: "Peak window begins. Thermal mass absorbing load. Monitor for 15 min.",
       expectedLoadReduction: Math.round(preCoolReduction * 0.3),
     })
 
-    // Stage 4: Peak shaving
     const peakMidMinutes = peakStartMinutes + Math.round((peakEndMinutes - peakStartMinutes) * 0.5)
     const peakMidHour = Math.floor(((peakMidMinutes % 1440) + 1440) % 1440 / 60)
     const peakMidMin = Math.round(((peakMidMinutes % 60) + 60) % 60)
@@ -501,7 +457,6 @@ export class ThermalEngine {
       expectedLoadReduction: Math.round(preCoolReduction),
     })
 
-    // Build explanation
     let explanation: string
     if (coincidentPeakRisk === "low") {
       explanation = `Low risk. Projected peak load increase of ${(loadIncreaseRatio * 100).toFixed(1)}% is within normal operating margin. No pre-cooling required.`
@@ -535,12 +490,10 @@ export class ThermalEngine {
   async calculateROI(params: RoiParamsInput): Promise<ROISummary> {
     const { assetId, period } = params
 
-    // Validate assetId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(assetId)) {
       throw AppError.badRequest("Invalid asset ID format")
     }
 
-    // Calculate date range
     const now = new Date()
     const periodDays: Record<string, number> = {
       "7d": 7,
@@ -551,13 +504,11 @@ export class ThermalEngine {
     const days = periodDays[period] ?? 30
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
 
-    // Query thermal readings for the period
     const readings = await ThermalReading.find({
       asset: new mongoose.Types.ObjectId(assetId),
       timestamp: { $gte: startDate, $lte: now },
     }).lean()
 
-    // Query alerts triggered for this asset
     const alerts = await Alert.find({
       asset: assetId,
       createdAt: { $gte: startDate, $lte: now },
@@ -566,31 +517,29 @@ export class ThermalEngine {
     const readingsCount = readings.length
     const alertsTriggered = alerts.length
 
-    // Calculate avoided losses based on readings and alerts
-    // Cargo loss prevention: estimated from temperature excursions prevented
-    const highRiskReadings = readings.filter((r) => r.riskScore >= 70)
-    const cargoLossPrevention = highRiskReadings.length * 150 // $150 per high-risk event prevented
+    const highRiskReadings = readings.filter((r: any) => (r.riskScore ?? 0) >= 70)
+    const cargoLossPrevention = highRiskReadings.length * 150
 
-    // Fuel optimization: estimated from thermal lag utilization
-    const avgWbgt = readings.reduce((sum, r) => sum + (r.metrics.wbgt ?? 0), 0) / Math.max(readingsCount, 1)
-    const fuelOptimization = avgWbgt > 26 ? days * 12.5 : days * 5 // $12.5/day when hot, $5/day otherwise
+    const avgWbgt =
+      readings.reduce((sum, r: any) => sum + (r.metrics?.wbgt ?? 0), 0) /
+      Math.max(readingsCount, 1)
+    const fuelOptimization = avgWbgt > 26 ? days * 12.5 : days * 5
 
-    // SLA breach avoidance: from alerts that were resolved
-    const resolvedAlerts = alerts.filter((a) => a.status === "auto_executed" || a.status === "dismissed")
-    const slaBreachAvoidance = resolvedAlerts.length * 500 // $500 per SLA breach avoided
+    const resolvedAlerts = alerts.filter(
+      (a: any) => a.status === "auto_executed" || a.status === "dismissed"
+    )
+    const slaBreachAvoidance = resolvedAlerts.length * 500
 
-    // Fines avoided: from critical alerts resolved
-    const criticalAlerts = alerts.filter((a) => a.severity === "critical")
-    const finesAvoided = criticalAlerts.length * 2500 // $2,500 per critical event
+    const criticalAlerts = alerts.filter((a: any) => a.severity === "critical")
+    const finesAvoided = criticalAlerts.length * 2500
 
-    const totalAvoidedLosses = cargoLossPrevention + fuelOptimization + slaBreachAvoidance + finesAvoided
+    const totalAvoidedLosses =
+      cargoLossPrevention + fuelOptimization + slaBreachAvoidance + finesAvoided
 
-    // Period cost (EchoHeat subscription estimate)
-    const periodCost = Math.round(days * 14.17) // ~$425/month ÷ 30 days
-
-    // Net ROI
+    const periodCost = Math.round(days * 14.17)
     const netROI = totalAvoidedLosses - periodCost
-    const roiMultiple = periodCost > 0 ? `${(totalAvoidedLosses / periodCost).toFixed(1)}x` : "N/A"
+    const roiMultiple =
+      periodCost > 0 ? `${(totalAvoidedLosses / periodCost).toFixed(1)}x` : "N/A"
 
     logger.info(`ROI calculated for asset ${assetId}: $${netROI} net (${roiMultiple})`)
 
