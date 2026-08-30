@@ -1,23 +1,16 @@
-
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "isolatedModules": true
+    "sourceMap": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
