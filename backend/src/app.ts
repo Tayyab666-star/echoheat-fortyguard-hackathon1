@@ -1,3 +1,25 @@
+import express from "express";
+import cors from "cors";
+import alertsRouter from "./routes/alerts";
+import orchestrateRouter from "./routes/orchestrate"; // <-- Add this import
+
+const app = express();
+app.use(cors({ origin: "*" }));
+app.use(express.json());
+
+// Root health check endpoint
+app.get("/", (req, res) => {
+  res.json({ status: "online", service: "EchoHeat Orchestration Backend" });
+});
+
+app.use("/api/v1/alerts", alertsRouter);
+app.use("/api/v1/orchestrate", orchestrateRouter); // <-- Register orchestrate route
+
+const PORT = process.env.PORT || 8000;
+app.listen(Number(PORT), "0.0.0.0", () => {
+  console.log(`EchoHeat Backend running on port ${PORT}`);
+});
+
 import express from "express"
 import cors from "cors"
 import helmet from "helmet"
