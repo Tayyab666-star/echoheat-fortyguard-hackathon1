@@ -1,4 +1,4 @@
-// lib/api.ts
+// frontend/lib/api.ts
 
 export interface RemediationParams {
   assetId: string;
@@ -10,7 +10,7 @@ export interface RemediationParams {
 
 export interface OrchestrationResult {
   success: boolean;
-  telemetry: any;
+  telemetry: Record<string, any>;
   decision: {
     decision_id: string;
     action_type: string;
@@ -34,39 +34,35 @@ export async function handleAutonomousRemediation({
   vertical,
   lat = 30.1575,
   lon = 71.5249,
-  telemetry = {}
+  telemetry = {},
 }: RemediationParams): Promise<OrchestrationResult> {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || "https://echoheat-fortyguard-hackathon1.onrender.com";
+  const backendUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://echoheat-fortyguard-hackathon1.onrender.com";
 
-  try {
-    const response = await fetch(`${backendUrl}/api/v1/orchestrate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  const response = await fetch(`${backendUrl}/api/v1/orchestrate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      asset_id: assetId,
+      vertical,
+      lat,
+      lon,
+      telemetry: {
+        current_reefer_temp_c: -14.2,
+        target_cargo_temp_c: -18.0,
+        shift_elapsed_hours: 4.5,
+        chiller_setpoint_c: 6.5,
+        ...telemetry,
       },
-      body: JSON.stringify({
-        asset_id: assetId,
-        vertical,
-        lat,
-        lon,
-        telemetry: {
-          current_reefer_temp_c: -14.2,
-          target_cargo_temp_c: -18.0,
-          shift_elapsed_hours: 4.5,
-          chiller_setpoint_c: 6.5,
-          ...telemetry,
-        },
-      }),
-    });
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data: OrchestrationResult = await response.json();
-    return data;
-  } catch (error: any) {
-    console.error("Failed to execute autonomous remediation:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`Server returned status: ${response.status}`);
   }
+
+  return response.json();
 }
