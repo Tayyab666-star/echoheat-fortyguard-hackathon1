@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import { Bell, LogOut, Settings, User, ChevronDown } from "lucide-react"
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from '@/hooks/useSession'
+import { useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
 import { Badge } from "@/components/ui/badge"
@@ -45,6 +46,7 @@ export function Topbar({
   activeZone = "karachi",
   onZoneChange,
 }: TopbarProps) {
+  const { signOut } = useClerk()
   const { data: session } = useSession()
   const router = useRouter()
   const [open, setOpen] = React.useState(false)
@@ -316,7 +318,7 @@ export function Topbar({
                 borderTop: '1px solid rgba(63,63,70,0.5)',
               }}>
                 <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={() => signOut({ redirectUrl: '/' })}
                   style={{
                     display: 'flex',
                     alignItems: 'center',

@@ -11,7 +11,8 @@ import { MobileHeader } from "@/components/layout/MobileHeader"
 import { MobileDrawer } from "@/components/layout/MobileDrawer"
 import { PageTransition } from "@/components/layout/PageTransition"
 import { EchoHeatSplashLoader } from "@/components/layout/EchoHeatSplashLoader"
-import { useSession } from "next-auth/react"
+import { useSession } from "@/hooks/useSession"
+import { useClerk } from "@clerk/nextjs"
 import {
   LayoutDashboard,
   Truck,
@@ -50,14 +51,14 @@ function DesktopSidebar({
   onLogoClick: () => void
 }) {
   const pathname = usePathname()
-  const { session } = useSession()
+  const { data: session } = useSession()
 
   const userInitials = React.useMemo(() => {
     const name = session?.user?.name
     if (!name) return "EH"
     return name
       .split(" ")
-      .map((n) => n[0])
+      .map((n: string) => n[0])
       .join("")
       .slice(0, 2)
       .toUpperCase()
@@ -213,7 +214,8 @@ function DesktopTopBar({
   onMarkAllRead: () => void
   recentAlerts: any[]
 }) {
-  const { session } = useSession()
+  const { data: session } = useSession()
+  const { signOut } = useClerk()
   const router = useRouter()
 
   const userInitials = React.useMemo(() => {
@@ -221,7 +223,7 @@ function DesktopTopBar({
     if (!name) return "EH"
     return name
       .split(" ")
-      .map((n) => n[0])
+      .map((n: string) => n[0])
       .join("")
       .slice(0, 2)
       .toUpperCase()
@@ -389,7 +391,7 @@ function DesktopTopBar({
               {/* Logout */}
               <div className="p-1 border-t border-[rgba(63,63,70,0.4)]">
                 <button
-                  onClick={() => { window.location.href = "/api/auth/signout?callbackUrl=/" }}
+                  onClick={() => signOut({ redirectUrl: '/' })}
                   className="flex items-center gap-3 w-full px-3 py-2 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors"
                 >
                   Sign Out

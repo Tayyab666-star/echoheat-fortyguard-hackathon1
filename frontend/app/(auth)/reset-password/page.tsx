@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSignIn } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import { Flame, Eye, EyeOff, AlertCircle, Loader2, CheckCircle2 } from "lucide-react"
 
@@ -24,14 +25,15 @@ const STRENGTH_COLORS: Record<number, string> = {
 
 const STRENGTH_LABELS: Record<number, string> = {
   0: "",
-  1: "Too short \u2014 needs 8+ characters",
-  2: "Weak \u2014 add a number",
-  3: "Good \u2014 add a symbol for maximum security",
-  4: "Strong \u2713",
+  1: "Too short — needs 8+ characters",
+  2: "Weak — add a number",
+  3: "Good — add a symbol for maximum security",
+  4: "Strong ✓",
 }
 
 export default function ResetPasswordPage() {
   const router = useRouter()
+  const { signIn, isLoaded } = useSignIn()
 
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
@@ -46,48 +48,36 @@ export default function ResetPasswordPage() {
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      const token = sessionStorage.getItem("echoheat_reset_token")
-      if (!token) router.replace("/forgot-password")
+      const email = sessionStorage.getItem("echoheat_reset_email")
+      if (!email) router.replace("/forgot-password")
     }
   }, [router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (strength < 1 || !passwordsMatch) return
-
-    const resetToken = sessionStorage.getItem("echoheat_reset_token")
-    if (!resetToken) {
-      setError("Reset token expired. Please start over.")
-      return
-    }
+    if (strength < 1 || !passwordsMatch || !isLoaded) return
 
     setLoading(true)
     setError(null)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      const res = await fetch(`${backendUrl}/api/v1/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ resetToken, newPassword: password }),
-      })
+      const result = await signIn.resetPassword({ password })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.message || "Failed to reset password.")
+      if (result.status === "complete") {
+        sessionStorage.removeItem("echoheat_reset_token")
+        sessionStorage.removeItem("echoheat_reset_email")
+        setSuccess(true)
         setLoading(false)
-        return
+
+        setTimeout(() => router.push("/login"), 2000)
       }
-
-      sessionStorage.removeItem("echoheat_reset_token")
-      sessionStorage.removeItem("echoheat_reset_email")
-      setSuccess(true)
-      setLoading(false)
-
-      setTimeout(() => router.push("/login"), 2000)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : (err as { errors?: { message?: string }[] })?.errors?.[0]?.message ||
+            "Failed to reset password."
+      setError(message)
       setLoading(false)
     }
   }

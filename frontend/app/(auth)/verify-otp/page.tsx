@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSignIn } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import { Flame, AlertCircle, Loader2 } from "lucide-react"
 
@@ -19,6 +20,7 @@ function maskEmail(email: string): string {
 
 export default function VerifyOtpPage() {
   const router = useRouter()
+  const { signIn, isLoaded } = useSignIn()
   const email = React.useMemo(() => {
     if (typeof window !== "undefined") return sessionStorage.getItem("echoheat_reset_email") || ""
     return ""
@@ -90,58 +92,56 @@ export default function VerifyOtpPage() {
   }
 
   async function submitOtp(code: string) {
-    if (!email || loading) return
+    if (!email || loading || !isLoaded) return
     setLoading(true)
     setError(null)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      const res = await fetch(`${backendUrl}/api/v1/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: code }),
+      await signIn.attemptFirstFactor({
+        strategy: "reset_password_email_code",
+        code,
       })
 
-      const data = await res.json()
+      router.push("/reset-password")
+    } catch (err: unknown) {
+      const newAttempts = attempts + 1
+      setAttempts(newAttempts)
 
-      if (!res.ok) {
-        const newAttempts = attempts + 1
-        setAttempts(newAttempts)
-
-        if (newAttempts >= MAX_ATTEMPTS) {
-          setError("Too many attempts. Redirecting to forgot password...")
-          setTimeout(() => router.replace("/forgot-password"), 2000)
-          return
-        }
-
-        setError(data.message || "Incorrect code.")
-        setShaking(true)
-        setTimeout(() => setShaking(false), 400)
-        setOtp(Array(OTP_LENGTH).fill(""))
-        inputRefs.current[0]?.focus()
-        setLoading(false)
+      if (newAttempts >= MAX_ATTEMPTS) {
+        setError("Too many attempts. Redirecting to forgot password...")
+        setTimeout(() => router.replace("/forgot-password"), 2000)
         return
       }
 
-      sessionStorage.setItem("echoheat_reset_token", data.data?.resetToken || "")
-      router.push("/reset-password")
-    } catch {
-      setError("Something went wrong. Please try again.")
+      const message =
+        err instanceof Error
+          ? err.message
+          : (err as { errors?: { message?: string }[] })?.errors?.[0]?.message ||
+            "Incorrect code."
+      setError(message)
+      setShaking(true)
+      setTimeout(() => setShaking(false), 400)
+      setOtp(Array(OTP_LENGTH).fill(""))
+      inputRefs.current[0]?.focus()
       setLoading(false)
     }
   }
 
   async function handleResend() {
-    if (resendTimer > 0 || resending || !email) return
+    if (resendTimer > 0 || resending || !email || !isLoaded) return
     setResending(true)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      await fetch(`${backendUrl}/api/v1/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      })
+      const createdSignIn = await signIn.create({ identifier: email })
+      const resetFactor = createdSignIn.supportedFirstFactors?.find(
+        (f: { strategy: string }) => f.strategy === "reset_password_email_code"
+      )
+      if (resetFactor && "emailAddressId" in resetFactor) {
+        await signIn.prepareFirstFactor({
+          strategy: "reset_password_email_code",
+          emailAddressId: (resetFactor as { emailAddressId: string }).emailAddressId,
+        })
+      }
       setResendTimer(RESEND_SECONDS)
       setAttempts(0)
       setOtp(Array(OTP_LENGTH).fill(""))

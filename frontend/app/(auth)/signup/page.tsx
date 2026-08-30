@@ -2,10 +2,10 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
+import { useSignUp } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { Flame, Eye, EyeOff, AlertCircle, Loader2, Check, X } from "lucide-react"
+import { Flame, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
 
 const FEATURES = [
   {
@@ -49,13 +49,13 @@ const STRENGTH_LABELS: Record<number, string> = {
   4: "Strong password ✓",
 }
 
-type UsernameStatus = "idle" | "checking" | "available" | "taken" | "too-short"
+
 
 export default function SignupPage() {
   const router = useRouter()
+  const { signUp, isLoaded } = useSignUp()
 
   const [fullName, setFullName] = React.useState("")
-  const [username, setUsername] = React.useState("")
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
@@ -63,41 +63,12 @@ export default function SignupPage() {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [agreed, setAgreed] = React.useState(false)
-  const [usernameStatus, setUsernameStatus] = React.useState<UsernameStatus>("idle")
 
   const strength = computeStrength(password)
   const passwordsMatch = password.length > 0 && password === confirmPassword
 
-  // Debounced username availability check
-  React.useEffect(() => {
-    if (username.length < 3) {
-      setUsernameStatus(username.length > 0 ? "too-short" : "idle")
-      return
-    }
-
-    setUsernameStatus("checking")
-    const timer = setTimeout(async () => {
-      try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-        const res = await fetch(`${backendUrl}/api/v1/auth/check-username?username=${username}`)
-        const data = await res.json()
-        setUsernameStatus(data.available ? "available" : "taken")
-      } catch {
-        setUsernameStatus("idle")
-      }
-    }, 500)
-
-    return () => clearTimeout(timer)
-  }, [username])
-
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "")
-    setUsername(value)
-  }
-
   const isFormValid =
     fullName.trim().length > 0 &&
-    usernameStatus === "available" &&
     email.includes("@") &&
     strength >= 2 &&
     passwordsMatch &&
@@ -105,30 +76,28 @@ export default function SignupPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!isFormValid) return
+    if (!isFormValid || !isLoaded) return
 
     setLoading(true)
     setError(null)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      const res = await fetch(`${backendUrl}/api/v1/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, username, email, password }),
+      await signUp.create({
+        emailAddress: email,
+        password,
+        firstName: fullName.split(" ")[0] || "",
+        lastName: fullName.split(" ").slice(1).join(" ") || "",
       })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.message || "Registration failed. Please try again.")
-        setLoading(false)
-        return
-      }
-
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" })
       router.push(`/verify-email-sent?email=${encodeURIComponent(email)}`)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : (err as { errors?: { message?: string }[] })?.errors?.[0]?.message ||
+            "Registration failed. Please try again."
+      setError(message)
       setLoading(false)
     }
   }
@@ -207,7 +176,13 @@ export default function SignupPage() {
           {/* Google OAuth */}
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl: "/loading?type=signup" })}
+            onClick={() =>
+              signUp?.authenticateWithRedirect({
+                strategy: "oauth_google",
+                redirectUrl: "/sso-callback",
+                redirectUrlComplete: "/dashboard",
+              })
+            }
             style={{
               width: "100%",
               display: "flex",
@@ -277,60 +252,7 @@ export default function SignupPage() {
               />
             </div>
 
-            {/* Username */}
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="username" className="text-sm font-medium text-text-primary">
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                required
-                placeholder="johndoe"
-                value={username}
-                onChange={handleUsernameChange}
-                className={`
-                  rounded-xl border bg-surface-1
-                  px-4 py-3 text-sm text-text-primary placeholder:text-text-muted
-                  outline-none transition-colors
-                  focus:ring-2
-                  ${usernameStatus === "available"
-                    ? "border-green-500/50 focus:border-green-500 focus:ring-green-500/20"
-                    : usernameStatus === "taken"
-                    ? "border-accent-danger/40 focus:border-accent-danger focus:ring-accent-danger/20"
-                    : "border-border-default focus:border-accent focus:ring-accent/20"
-                  }
-                `}
-              />
-              {/* Username validation feedback */}
-              {username.length > 0 && (
-                <div className="flex items-center gap-1.5">
-                  {usernameStatus === "checking" && (
-                    <p className="text-[11px] text-text-muted">Checking availability...</p>
-                  )}
-                  {usernameStatus === "available" && (
-                    <p className="flex items-center gap-1 text-[11px] text-green-400">
-                      <Check size={12} /> Available
-                    </p>
-                  )}
-                  {usernameStatus === "taken" && (
-                    <p className="flex items-center gap-1 text-[11px] text-accent-danger">
-                      <X size={12} /> Already taken
-                    </p>
-                  )}
-                  {usernameStatus === "too-short" && (
-                    <p className="text-[11px] text-orange-400">
-                      Too short — needs 3+ characters
-                    </p>
-                  )}
-                </div>
-              )}
-              <p className="text-[11px] text-text-muted">
-                Only lowercase letters, numbers, and _ allowed
-              </p>
-            </div>
-
-            {/* Work Email */}
+            {/* Email */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="email" className="text-sm font-medium text-text-primary">
                 Work Email

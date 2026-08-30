@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Suspense } from "react"
 import Link from "next/link"
-import { signIn } from "next-auth/react"
+import { useSignIn } from "@clerk/nextjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
 import { Flame, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
@@ -30,6 +30,7 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackError = searchParams.get("error")
+  const { signIn, isLoaded } = useSignIn()
 
   const [email, setEmail] = React.useState("")
   const [password, setPassword] = React.useState("")
@@ -39,20 +40,29 @@ function LoginForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!isLoaded) return
     setLoading(true)
     setError(null)
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    })
-
-    if (res?.error) {
-      setError(res.error)
+    try {
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      })
+      if (result.status === "complete") {
+        router.push("/loading?type=login")
+      } else {
+        setError("Additional verification required.")
+        setLoading(false)
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : (err as { errors?: { message?: string }[] })?.errors?.[0]?.message ||
+            "Invalid credentials"
+      setError(message)
       setLoading(false)
-    } else {
-      router.push("/loading?type=login")
     }
   }
 
@@ -129,7 +139,13 @@ function LoginForm() {
 
           {/* Google OAuth */}
           <button
-            onClick={() => signIn("google", { callbackUrl: "/loading?type=login" })}
+            onClick={() =>
+              signIn?.authenticateWithRedirect({
+                strategy: "oauth_google",
+                redirectUrl: "/sso-callback",
+                redirectUrlComplete: "/dashboard",
+              })
+            }
             className="
               flex w-full items-center justify-center gap-3 rounded-xl
               border border-border-default bg-surface-2 px-4 py-3

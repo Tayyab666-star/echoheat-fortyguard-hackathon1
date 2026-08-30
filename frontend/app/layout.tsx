@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { ClerkProvider } from "@clerk/nextjs"
 
 import { GeistSans, GeistMono } from "@/lib/fonts"
 import { Providers } from "@/components/Providers"
@@ -51,8 +52,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="font-sans antialiased" suppressHydrationWarning>
-        <InitialLoadingScreen />
-        <Providers>{children}</Providers>
+        <ClerkProvider>
+          <InitialLoadingScreen />
+          <Providers>{children}</Providers>
+        </ClerkProvider>
       </body>
     </html>
   )

@@ -3,29 +3,26 @@
 import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { useSignUp } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import { Flame, Mail, ArrowLeft, Loader2, Check } from "lucide-react"
 
 function VerifyEmailSentContent() {
   const searchParams = useSearchParams()
   const email = searchParams.get("email") || ""
+  const { signUp, isLoaded } = useSignUp()
   const [resending, setResending] = React.useState(false)
   const [resent, setResent] = React.useState(false)
 
   async function handleResend() {
-    if (!email || resent) return
+    if (!email || resent || !isLoaded || !signUp) return
 
     setResending(true)
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      await fetch(`${backendUrl}/api/v1/auth/resend-verification`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      })
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" })
       setResent(true)
     } catch {
-      // Silently fail - we don't want to reveal if email exists
+      // Silently fail
     } finally {
       setResending(false)
     }

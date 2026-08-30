@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useSignIn } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import { Flame, Eye, EyeOff, AlertCircle, Loader2, CheckCircle2, Check } from "lucide-react"
 
@@ -15,8 +16,9 @@ const PASSWORD_RULES = [
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const params = useParams()
-  const token = params.token as string
+  const searchParams = useSearchParams()
+  const ticket = searchParams.get("ticket")
+  const { signIn, isLoaded } = useSignIn()
 
   const [password, setPassword] = React.useState("")
   const [confirmPassword, setConfirmPassword] = React.useState("")
@@ -28,33 +30,35 @@ export default function ResetPasswordPage() {
   const passwordsMatch = password === confirmPassword
   const allRulesPass = PASSWORD_RULES.every((r) => r.test(password))
 
+  // If there's a ticket, Clerk handles it via the sign-in flow
+  React.useEffect(() => {
+    if (ticket && isLoaded) {
+      // The ticket is handled by Clerk's middleware/sign-in flow
+      // User can proceed to enter new password
+    }
+  }, [ticket, isLoaded])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!allRulesPass || !passwordsMatch) return
+    if (!allRulesPass || !passwordsMatch || !isLoaded) return
 
     setLoading(true)
     setError(null)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      const res = await fetch(`${backendUrl}/api/v1/auth/reset-password/${token}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password, confirmPassword }),
-      })
+      const result = await signIn.resetPassword({ password })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        setError(data.message || "Failed to reset password. The link may have expired.")
+      if (result.status === "complete") {
+        setSuccess(true)
         setLoading(false)
-        return
       }
-
-      setSuccess(true)
-      setLoading(false)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : (err as { errors?: { message?: string }[] })?.errors?.[0]?.message ||
+            "Failed to reset password. The link may have expired."
+      setError(message)
       setLoading(false)
     }
   }
@@ -89,7 +93,7 @@ export default function ResetPasswordPage() {
               onClick={() => router.push("/login")}
               className="mt-6 inline-block text-sm font-medium text-accent hover:underline"
             >
-              Sign in with new password &rarr;
+              Sign in with new password →
             </button>
           </motion.div>
         ) : (

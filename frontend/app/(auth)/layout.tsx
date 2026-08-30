@@ -1,18 +1,12 @@
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { auth } from "@clerk/nextjs/server"
 
 export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  let session = null
-  try {
-    session = await getServerSession(authOptions)
-  } catch {
-    // NEXTAUTH_SECRET not configured — allow access to auth pages
-  }
-  if (session) redirect("/dashboard")
+  const { userId } = await auth()
+  if (userId) redirect("/dashboard")
   return <>{children}</>
 }

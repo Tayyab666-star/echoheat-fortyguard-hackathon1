@@ -123,11 +123,11 @@ export function globalErrorHandler(err: CustomError, _req: Request, res: Respons
     name: err.name,
   })
 
-  // Production: never leak stack traces
+  // Production: include error name for debugging
   if (env.NODE_ENV === "production") {
     res.status(500).json({
       status: "error",
-      message: "Something went wrong",
+      message: err.message || "Something went wrong",
       code: "ERR_500",
     })
     return

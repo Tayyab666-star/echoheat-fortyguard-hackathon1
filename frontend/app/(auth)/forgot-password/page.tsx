@@ -3,11 +3,13 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useSignIn } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import { Flame, AlertCircle, Loader2, CheckCircle2 } from "lucide-react"
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
+  const { signIn, isLoaded } = useSignIn()
   const [email, setEmail] = React.useState("")
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -15,26 +17,36 @@ export default function ForgotPasswordPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!isLoaded) return
     setLoading(true)
     setError(null)
 
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-      const res = await fetch(`${backendUrl}/api/v1/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      })
+      const createdSignIn = await signIn.create({ identifier: email })
 
-      await res.json()
+      const resetFactor = createdSignIn.supportedFirstFactors?.find(
+        (f) => f.strategy === "reset_password_email_code"
+      )
+
+      if (resetFactor && "emailAddressId" in resetFactor) {
+        await signIn.prepareFirstFactor({
+          strategy: "reset_password_email_code",
+          emailAddressId: resetFactor.emailAddressId,
+        })
+      }
 
       sessionStorage.setItem("echoheat_reset_email", email)
       setSent(true)
       setLoading(false)
 
       setTimeout(() => router.push("/verify-otp"), 1500)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : (err as { errors?: { message?: string }[] })?.errors?.[0]?.message ||
+            "Something went wrong. Please try again."
+      setError(message)
       setLoading(false)
     }
   }

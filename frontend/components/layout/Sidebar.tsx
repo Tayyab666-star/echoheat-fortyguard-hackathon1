@@ -18,7 +18,7 @@ import {
   Menu,
   X,
 } from "lucide-react"
-import { useSession } from 'next-auth/react'
+import { useSession } from '@/hooks/useSession'
 
 import { cn } from "@/lib/utils"
 import {
@@ -47,7 +47,7 @@ interface SidebarProps {
 function SidebarContent({ collapsed, onToggle, onNavigate }: SidebarProps & { onNavigate?: () => void }) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const userName = session?.user?.name || session?.user?.username || 'User'
+  const userName = session?.user?.name || 'User'
   const userEmail = session?.user?.email || ''
   const initials = userName.slice(0, 2).toUpperCase()
 

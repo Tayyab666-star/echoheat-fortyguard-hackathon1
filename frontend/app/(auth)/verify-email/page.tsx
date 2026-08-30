@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { useUser } from "@clerk/nextjs"
 import { motion } from "framer-motion"
 import { Flame, CheckCircle, XCircle, Loader2 } from "lucide-react"
 
@@ -10,38 +11,37 @@ type VerificationStatus = "loading" | "success" | "error"
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  const router = useRouter()
+  const { isSignedIn, isLoaded } = useUser()
+  const statusParam = searchParams.get("status")
+  const verificationParam = searchParams.get("verification")
   const [status, setStatus] = React.useState<VerificationStatus>("loading")
   const [error, setError] = React.useState("")
 
   React.useEffect(() => {
-    if (!token) {
+    if (!isLoaded) return
+
+    // If Clerk redirected here after email verification, go to dashboard
+    if (isSignedIn) {
+      router.push("/dashboard")
+      return
+    }
+
+    // If no verification params, show error
+    if (!statusParam && !verificationParam) {
       setStatus("error")
       setError("No verification token provided")
       return
     }
 
-    async function verifyEmail() {
-      try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"
-        const res = await fetch(`${backendUrl}/api/v1/auth/verify-email?token=${token}`)
-        const data = await res.json()
-
-        if (!res.ok) {
-          setStatus("error")
-          setError(data.message || "Verification failed")
-          return
-        }
-
-        setStatus("success")
-      } catch {
-        setStatus("error")
-        setError("Something went wrong. Please try again.")
-      }
+    // If status is "verified" or verification is present, Clerk handled it
+    if (statusParam === "verified" || verificationParam) {
+      setStatus("success")
+    } else {
+      setStatus("error")
+      setError("Invalid verification link")
     }
-
-    verifyEmail()
-  }, [token])
+  }, [isLoaded, isSignedIn, statusParam, verificationParam, router])
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-base px-6">
@@ -84,7 +84,7 @@ function VerifyEmailContent() {
                 <CheckCircle className="size-8 text-green-500" />
               </div>
               <h1 className="mb-2 text-center text-2xl font-bold text-text-primary">
-                Email verified! ✓
+                Email verified!
               </h1>
               <p className="mb-8 text-center text-sm text-text-muted">
                 Your account has been activated. You can now sign in.
