@@ -1,3 +1,21 @@
+async function handleAutonomousRemediation(assetId: string, vertical: string) {
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const res = await fetch(`${backendUrl}/api/v1/orchestrate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      asset_id: assetId,
+      vertical: vertical, // 'cold_chain' | 'workforce_safety' | 'commercial_facility'
+      lat: 30.1575,
+      lon: 71.5249,
+      telemetry: { current_reefer_temp_c: -14.2, target_cargo_temp_c: -18.0 }
+    })
+  });
+  const data = await res.json();
+  console.log("Agent Decision:", data.decision);
+  console.log("Writeback Result:", data.writeback);
+}
+
 "use client"
 
 import * as React from "react"
