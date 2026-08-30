@@ -110,7 +110,7 @@ export interface PeakDemandResult {
     forecastedAmbientTemp: number
     thermalLag: number
     activeSystems: number
-    tariffPeakWindow: { start: string; end: string }
+    tariffPeakWindow: { start?: string; end?: string } | any
   }
 }
 
@@ -389,8 +389,8 @@ export class ThermalEngine {
   calculatePeakDemandRisk(params: PeakDemandParamsInput): PeakDemandResult {
     const { currentLoad, forecastedAmbientTemp, thermalLag, activeSystems, tariffPeakWindow } = params
 
-    const [peakStartH, peakStartM] = tariffPeakWindow.start.split(":").map(Number)
-    const [peakEndH, peakEndM] = tariffPeakWindow.end.split(":").map(Number)
+    const [peakStartH, peakStartM] = (tariffPeakWindow?.start || "14:00").split(":").map(Number)
+    const [peakEndH, peakEndM] = (tariffPeakWindow?.end || "18:00").split(":").map(Number)
     const peakStartMinutes = (peakStartH ?? 0) * 60 + (peakStartM ?? 0)
     const peakEndMinutes = (peakEndH ?? 0) * 60 + (peakEndM ?? 0)
 
@@ -443,7 +443,7 @@ export class ThermalEngine {
     })
 
     stagingSchedule.push({
-      time: tariffPeakWindow.start,
+      time: tariffPeakWindow?.start || "14:00",
       action: "Peak window begins. Thermal mass absorbing load. Monitor for 15 min.",
       expectedLoadReduction: Math.round(preCoolReduction * 0.3),
     })
@@ -480,8 +480,11 @@ export class ThermalEngine {
         forecastedAmbientTemp,
         thermalLag,
         activeSystems,
-        tariffPeakWindow,
-      },
+        tariffPeakWindow: {
+          start: String(tariffPeakWindow?.start || "14:00"),
+          end: String(tariffPeakWindow?.end || "18:00"),
+        },
+      } as any,
     }
   }
 
