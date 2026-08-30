@@ -18,11 +18,6 @@
     "db:migrate": "cd database && npm run migrate:up",
     "db:indexes": "cd database && npm run db:indexes"
   },
-  "dependencies": {
-    "next": "15.5.23",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
-  },
   "devDependencies": {
     "concurrently": "^9.1.0"
   }
