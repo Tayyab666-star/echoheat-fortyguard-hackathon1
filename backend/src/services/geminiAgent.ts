@@ -1,5 +1,5 @@
 // backend/src/services/geminiAgent.ts
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export interface AgentDecisionOutput {
   decision_id: string;
@@ -17,23 +17,23 @@ export interface AgentDecisionOutput {
 }
 
 export class EchoHeatGeminiAgent {
-  private client: GoogleGenAI | null = null;
+  private genAI: GoogleGenerativeAI | null = null;
   private apiKey: string;
-  private model: string = "gemini-3.6-flash";
+  private modelName: string = "gemini-1.5-flash";
 
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.GEMINI_API_KEY || "";
     if (this.apiKey) {
       try {
-        this.client = new GoogleGenAI({ apiKey: this.apiKey });
+        this.genAI = new GoogleGenerativeAI(this.apiKey);
       } catch (err) {
-        console.warn("[GEMINI AGENT] Failed to initialize GoogleGenAI client:", err);
+        console.warn("[GEMINI AGENT] Failed to initialize GoogleGenerativeAI client:", err);
       }
     }
   }
 
   async evaluateTelemetry(payload: Record<string, any>): Promise<AgentDecisionOutput> {
-    if (this.client && this.apiKey) {
+    if (this.genAI && this.apiKey) {
       try {
         return await this.evaluateWithGemini(payload);
       } catch (error: any) {
@@ -49,6 +49,15 @@ export class EchoHeatGeminiAgent {
       "You are the EchoHeat Autonomous Thermal Agent. Ingest physical microclimate metrics " +
       "fused with asset kinetics (thermal lag, WBGT, Q10 decay). Select the appropriate mitigation action " +
       "and output valid JSON matching the schema. Prioritize immediate loss prevention.";
+
+    const model = this.genAI!.getGenerativeModel({
+      model: this.modelName,
+      systemInstruction: systemInstruction,
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+      },
+    });
 
     const prompt = `
 Evaluate the following asset telemetry payload:
@@ -71,17 +80,8 @@ Output MUST strictly be a single valid JSON object:
   "estimated_loss_prevented_usd": 150000.0
 }`;
 
-    const response = await this.client!.models.generateContent({
-      model: this.model,
-      contents: prompt,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        temperature: 0.1,
-      },
-    });
-
-    let cleanText = response.text ? response.text.trim() : "";
+    const result = await model.generateContent(prompt);
+    let cleanText = result.response.text().trim();
     if (cleanText.startsWith("```json")) cleanText = cleanText.substring(7);
     if (cleanText.endsWith("```")) cleanText = cleanText.substring(0, cleanText.length - 3);
 
