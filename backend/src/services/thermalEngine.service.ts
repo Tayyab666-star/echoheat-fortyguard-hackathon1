@@ -243,9 +243,9 @@ export class ThermalEngineService {
       risk_level: riskLevel,
       metrics,
       optimal_window: {
-        start: String(optimalWindow.start),
-        end: String(optimalWindow.end),
-      },
+        start: String(optimalWindow.start ?? new Date().toISOString()),
+        end: String(optimalWindow.end ?? new Date().toISOString()),
+      } as any,
       recommendations,
       evaluated_at: new Date().toISOString(),
     };
