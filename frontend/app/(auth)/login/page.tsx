@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useSignIn } from "@clerk/nextjs"
 import { useRouter, useSearchParams } from "next/navigation"
 import { motion } from "framer-motion"
-import { Flame, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
+import { Flame, Eye, EyeOff, AlertCircle, CheckCircle, Loader2 } from "lucide-react"
 
 const FEATURES = [
   {
@@ -30,6 +30,7 @@ function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackError = searchParams.get("error")
+  const verified = searchParams.get("verified") === "true"
   const { signIn, isLoaded } = useSignIn()
 
   const [email, setEmail] = React.useState("")
@@ -136,6 +137,17 @@ function LoginForm() {
               Sign in to your EchoHeat dashboard
             </p>
           </div>
+
+          {verified && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/10 px-3 py-2.5 text-sm text-green-500"
+            >
+              <CheckCircle className="size-4 shrink-0" />
+              Email verified! You can now sign in.
+            </motion.div>
+          )}
 
           {/* Google OAuth */}
           <button
