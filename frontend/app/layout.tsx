@@ -7,6 +7,9 @@ import { InitialLoadingScreen } from "@/components/layout/InitialLoadingScreen"
 
 import "./globals.css"
 
+// Prevents Next.js 15 build worker crashes when Clerk/cookies are evaluated during static generation
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: {
     default: "EchoHeat",
